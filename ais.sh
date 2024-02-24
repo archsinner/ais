@@ -168,7 +168,7 @@ sudo chown -R "$USERNAME:$USERNAME" "/home/$USERNAME/.config" "/home/$USERNAME/.
 sudo chmod +x "/home/$USERNAME/.local/bin/remaps"
 
 # Display completion message
-dialog --msgbox "Suckless software installation and dotfiles setup completed! Now you can log back into your user and your suckless
+dialog --msgbox "Suckless software installation and dotfiles setup completed! Now you can log back into your user, type startx, and your suckless
 setup should be ready!" 10 70
 
 # Exit
