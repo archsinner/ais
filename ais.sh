@@ -164,6 +164,10 @@ sudo -u "$USERNAME" cp "/home/$USERNAME/dotfiles/.local/bin/remaps" "/home/$USER
 sudo -u "$USERNAME" cp "/home/$USERNAME/dotfiles/.vimrc" "/home/$USERNAME/"
 sudo -u "$USERNAME" cp "/home/$USERNAME/dotfiles/.surf/styles/default.css" "/home/$USERNAME/.surf/styles/"
 
+# Add ILoveCandy to /etc/pacman.conf
+sudo sed -i '/#Color/s/^#//' /etc/pacman.conf
+sudo sed -i '/#VerbosePkgLists/a ILoveCandy' /etc/pacman.conf
+
 # Set ownership of copied files to the user
 sudo chown -R "$USERNAME:$USERNAME" "/home/$USERNAME/.config" "/home/$USERNAME/.xinitrc" "/home/$USERNAME/.bashrc" "/home/$USERNAME/.local/bin/remaps" "/home/$USERNAME/.vimrc"
 
