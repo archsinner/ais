@@ -84,6 +84,10 @@ sudo -u "$USERNAME" mkdir -p "/home/$USERNAME/.local/bin"
 sudo chown -R "$USERNAME:$USERNAME" "/home/$USERNAME/.local"
 sudo chmod -R 755 "/home/$USERNAME/.local"
 
+# Set ownership and permissions of .local/bin directory
+sudo chown -R "$USERNAME:$USERNAME" "/home/$USERNAME/.local/bin"
+sudo chmod -R 755 "/home/$USERNAME/.local/bin"
+
 # Prompt user for desktop or laptop usage
 dialog --title "Desktop or Laptop?" --yesno "If you're using a laptop click yes, if desktop click no?" 10 70
 response=$?
