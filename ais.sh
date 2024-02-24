@@ -154,9 +154,10 @@ sudo -u "$USERNAME" cp -r "/home/$USERNAME/dotfiles/.config" "/home/$USERNAME/"
 sudo -u "$USERNAME" cp "/home/$USERNAME/dotfiles/.xinitrc" "/home/$USERNAME/"
 sudo -u "$USERNAME" cp "/home/$USERNAME/dotfiles/.bashrc" "/home/$USERNAME/"
 sudo -u "$USERNAME" cp "/home/$USERNAME/dotfiles/.local/bin/remaps" "/home/$USERNAME/.local/bin/"
+sudo -u "$USERNAME" cp "/home/$USERNAME/dotfiles/.vimrc" "/home/$USERNAME/"
 
 # Set ownership of copied files to the user
-sudo chown -R "$USERNAME:$USERNAME" "/home/$USERNAME/.config" "/home/$USERNAME/.xinitrc" "/home/$USERNAME/.bashrc" "/home/$USERNAME/.local/bin/remaps"
+sudo chown -R "$USERNAME:$USERNAME" "/home/$USERNAME/.config" "/home/$USERNAME/.xinitrc" "/home/$USERNAME/.bashrc" "/home/$USERNAME/.local/bin/remaps" "/home/$USERNAME/.vimrc"
 
 # Set the remaps script to executable
 sudo chmod +x "/home/$USERNAME/.local/bin/remaps"
