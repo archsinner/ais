@@ -122,11 +122,11 @@ response=$?
 if [ $response -eq 0 ]; then
     # User selected laptop
     sudo -u "$USERNAME" git clone https://github.com/archsinner/slstatus-laptop.git "/home/$USERNAME/.local/src/slstatus-laptop"
-    (cd "/home/$USERNAME/.local/src/slstatus-laptop" && sudo -u "$USERNAME" make && sudo make clean install)
+    (cd "/home/$USERNAME/.local/src/slstatus-laptop" && sudo -u "$USERNAME" make > /dev/null && sudo make clean install > /dev/null)
 else
     # User selected desktop
     sudo -u "$USERNAME" git clone https://github.com/archsinner/slstatus-desktop.git "/home/$USERNAME/.local/src/slstatus-desktop"
-    (cd "/home/$USERNAME/.local/src/slstatus-desktop" && sudo -u "$USERNAME" make && sudo make clean install)
+    (cd "/home/$USERNAME/.local/src/slstatus-desktop" && sudo -u "$USERNAME" make > /dev/null && sudo make clean install > /dev/null)
 fi
 
 # Remove original slstatus if it exists
@@ -151,13 +151,13 @@ done
 # Compile and install each program
 for repo in "${repos[@]}"; do
     if [ "$repo" != "slock" ]; then
-        (cd "/home/$USERNAME/.local/src/$repo" && sudo -u "$USERNAME" make && sudo make clean install)
+        (cd "/home/$USERNAME/.local/src/$repo" && sudo -u "$USERNAME" make > /dev/null && sudo make clean install > /dev/null)
     fi
 done
 
 # Clone pfetch and install using make install
 sudo -u "$USERNAME" git clone https://github.com/archsinner/pfetch.git "/home/$USERNAME/.local/src/pfetch"
-(cd "/home/$USERNAME/.local/src/pfetch" && sudo make install)
+(cd "/home/$USERNAME/.local/src/pfetch" && sudo make install > /dev/null)
 
 # Clone dotfiles repository and copy files to user's home directory
 sudo -u "$USERNAME" git clone https://github.com/archsinner/dotfiles.git "/home/$USERNAME/dotfiles"
