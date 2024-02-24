@@ -33,7 +33,7 @@ Make the script executable:
 
 Run the script:
 
-    ./ais.sh
+    sh ais.sh
 
 Follow the on-screen instructions to proceed with the installation.
 
