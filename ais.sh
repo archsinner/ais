@@ -154,7 +154,11 @@ for repo in "${repos[@]}"; do
     fi
 
     if [ -d "$target_dir" ]; then
-        (cd "$target_dir" && sudo -u "$USERNAME" make > /dev/null && sudo make clean install > /dev/null)
+        (cd "$target_dir" && sudo -u "$USERNAME" make > /dev/null && sudo make clean install > /dev/null) | {
+            while read -r line; do
+                update_progress "$index" "$total_repos" | dialog --title "Compiling $repo" --gauge "$line" 10 70
+            done
+        }
     else
         echo "Failed to clone $repo or directory $target_dir does not exist."
     fi
