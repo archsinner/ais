@@ -20,7 +20,7 @@ check_install_dependencies() {
     
     if [[ ${#missing_dependencies[@]} -gt 0 ]]; then
         # Install missing dependencies
-        dialog --title "Installing dependencies" --gauge "Installing required dependencies..." 10 70 0
+        dialog --clear --title "Installing dependencies" --gauge "Installing required dependencies..." 10 70 0
         sudo pacman -Sy --noconfirm "${missing_dependencies[@]}"
     fi
 }
