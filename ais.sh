@@ -72,7 +72,7 @@ sudo -u "$USERNAME" mkdir -p ~/"$USERNAME"/.local/src
 sudo -u "$USERNAME" mkdir -p ~/"$USERNAME"/.local/bin
 
 # Prompt user for desktop or laptop usage
-dialog --title "Desktop or Laptop?" --yesno "Are you using a desktop or a laptop?" 10 70
+dialog --title "Desktop or Laptop?" --yesno "If you're using a laptop click yes, if desktop click no?" 10 70
 response=$?
 
 # Clone the appropriate slstatus repository based on user's choice
@@ -107,7 +107,7 @@ for repo in "${repos[@]}"; do
     ((index++))
     dialog --title "Cloning repository $repo ($index/$total_repos)" --infobox "Cloning $repo repository..." 5 70
     if [ "$repo" == "slock" ]; then
-        sudo -u "$USERNAME" git clone "git@github.com:archsinner/slock-.git" "/home/$USERNAME/.local/src/slock"
+        sudo -u "$USERNAME" git clone "https://github.com/archsinner/slock-.git" "/home/$USERNAME/.local/src/slock"
     else
         sudo -u "$USERNAME" git clone "https://github.com/archsinner/$repo.git" "/home/$USERNAME/.local/src/$repo"
     fi
