@@ -9,7 +9,7 @@ sudo pacman -Syu --noconfirm
 
 # Function to check and install dependencies
 check_install_dependencies() {
-    local dependencies=(libimlib2 xwallpaper base-devel libx11 libxft xorg-server xorg-xinit terminus-font dialog libxinerama xcompmgr webkit2gtk gcr exa wireplumber unclutter pipewire xdotool xcape)
+    local dependencies=(imlib2 xwallpaper base-devel libx11 libxft xorg-server xorg-xinit terminus-font dialog libxinerama xcompmgr webkit2gtk gcr exa wireplumber unclutter pipewire xdotool xcape)
     local missing_dependencies=()
     
     for dep in "${dependencies[@]}"; do
