@@ -122,11 +122,11 @@ response=$?
 if [ $response -eq 0 ]; then
     # User selected laptop
     sudo -u "$USERNAME" git clone https://github.com/archsinner/slstatus-laptop.git "/home/$USERNAME/.local/src/slstatus-laptop"
-    (cd "/home/$USERNAME/.local/src/slstatus-laptop" && sudo -u "$USERNAME" make > /dev/null && sudo make clean install > /dev/null)
+    (cd "/home/$USERNAME/.local/src/slstatus-laptop" && sudo -u "$USERNAME" make && sudo make clean install)
 else
     # User selected desktop
     sudo -u "$USERNAME" git clone https://github.com/archsinner/slstatus-desktop.git "/home/$USERNAME/.local/src/slstatus-desktop"
-    (cd "/home/$USERNAME/.local/src/slstatus-desktop" && sudo -u "$USERNAME" make > /dev/null && sudo make clean install > /dev/null)
+    (cd "/home/$USERNAME/.local/src/slstatus-desktop" && sudo -u "$USERNAME" make && sudo make clean install)
 fi
 
 # Remove original slstatus if it exists
@@ -134,30 +134,35 @@ if [ -d "/home/$USERNAME/.local/src/slstatus" ]; then
     sudo -u "$USERNAME" rm -rf "/home/$USERNAME/.local/src/slstatus"
 fi
 
-# Clone the remaining repositories
+# Clone the remaining repositories including slock
+repos=(dwm st dmenu surf slock)
+total_repos=${#repos[@]}
+index=0
+
+# Clone the remaining repositories including slock
 repos=(dwm st dmenu surf slock)
 total_repos=${#repos[@]}
 index=0
 
 for repo in "${repos[@]}"; do
     ((index++))
-    if [ "$repo" == "slock" ]; then
-        sudo -u "$USERNAME" git clone "https://github.com/archsinner/slock-.git" "/home/$USERNAME/.local/src/slock"
+    target_dir="/home/$USERNAME/.local/src/$repo"
+    if [ ! -d "$target_dir" ]; then
+        sudo -u "$USERNAME" git clone "https://github.com/archsinner/$repo.git" "$target_dir"
     else
-        sudo -u "$USERNAME" git clone "https://github.com/archsinner/$repo.git" "/home/$USERNAME/.local/src/$repo"
+        echo "Directory $target_dir already exists. Skipping cloning for $repo."
     fi
-done
 
-# Compile and install each program
-for repo in "${repos[@]}"; do
-    if [ "$repo" != "slock" ]; then
-        (cd "/home/$USERNAME/.local/src/$repo" && sudo -u "$USERNAME" make > /dev/null && sudo make clean install > /dev/null)
+    if [ -d "$target_dir" ]; then
+        (cd "$target_dir" && sudo -u "$USERNAME" make && sudo make clean install)
+    else
+        echo "Failed to clone $repo or directory $target_dir does not exist."
     fi
 done
 
 # Clone pfetch and install using make install
 sudo -u "$USERNAME" git clone https://github.com/archsinner/pfetch.git "/home/$USERNAME/.local/src/pfetch"
-(cd "/home/$USERNAME/.local/src/pfetch" && sudo make install > /dev/null)
+(cd "/home/$USERNAME/.local/src/pfetch" && sudo make install)
 
 # Clone dotfiles repository and copy files to user's home directory
 sudo -u "$USERNAME" git clone https://github.com/archsinner/dotfiles.git "/home/$USERNAME/dotfiles"
