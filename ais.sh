@@ -92,7 +92,7 @@ sudo chown -R "$USERNAME:$USERNAME" "/home/$USERNAME/.local/bin"
 sudo chmod -R 755 "/home/$USERNAME/.local/bin"
 
 # Prompt user for desktop or laptop usage
-dialog --title "Desktop or Laptop?" --yesno "Are you setting up a laptop? Choose 'Yes' for laptop or 'No' for desktop." 10 70
+dialog --title "Desktop or Laptop?" --yesno "Are you setting up a laptop or desktop? Choose 'Yes' for laptop or 'No' for desktop." 10 70
 response=$?
 
 # Check the user's response and clone the appropriate slstatus repository
