@@ -89,24 +89,24 @@ sudo chown -R "$USERNAME:$USERNAME" "/home/$USERNAME/.local/bin"
 sudo chmod -R 755 "/home/$USERNAME/.local/bin"
 
 # Prompt user for desktop or laptop usage
-dialog --title "Desktop or Laptop?" --yesno "If you're using a laptop click yes, if desktop click no?" 10 70
+dialog --title "Desktop or Laptop?" --yesno "Are you setting up a laptop? Choose 'Yes' for laptop or 'No' for desktop." 10 70
 response=$?
 
-# Clone the appropriate slstatus repository based on user's choice
+# Check the user's response and clone the appropriate slstatus repository
 if [ $response -eq 0 ]; then
-    # User selected desktop
-    dialog --infobox "Cloning slstatus-desktop repository..." 5 70
-    sudo -u "$USERNAME" git clone https://github.com/archsinner/slstatus-desktop.git "/home/$USERNAME/.local/src/slstatus-desktop"
-    # Install slstatus-desktop
-    dialog --infobox "Installing slstatus-desktop..." 5 70
-    (cd "/home/$USERNAME/.local/src/slstatus-desktop" && sudo -u "$USERNAME" make && sudo make install)
-else
     # User selected laptop
     dialog --infobox "Cloning slstatus-laptop repository..." 5 70
     sudo -u "$USERNAME" git clone https://github.com/archsinner/slstatus-laptop.git "/home/$USERNAME/.local/src/slstatus-laptop"
     # Install slstatus-laptop
     dialog --infobox "Installing slstatus-laptop..." 5 70
     (cd "/home/$USERNAME/.local/src/slstatus-laptop" && sudo -u "$USERNAME" make && sudo make install)
+else
+    # User selected desktop
+    dialog --infobox "Cloning slstatus-desktop repository..." 5 70
+    sudo -u "$USERNAME" git clone https://github.com/archsinner/slstatus-desktop.git "/home/$USERNAME/.local/src/slstatus-desktop"
+    # Install slstatus-desktop
+    dialog --infobox "Installing slstatus-desktop..." 5 70
+    (cd "/home/$USERNAME/.local/src/slstatus-desktop" && sudo -u "$USERNAME" make && sudo make install)
 fi
 
 # Remove original slstatus if it exists
