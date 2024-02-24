@@ -116,7 +116,7 @@ if [ -d "/home/$USERNAME/.local/src/slstatus" ]; then
 fi
 
 # Clone the remaining repositories
-repos=(dwm st dmenu surf slock)
+repos=(dwm st dmenu surf slock pfetch)
 total_repos=${#repos[@]}
 index=0
 
