@@ -12,7 +12,7 @@ sudo pacman -Syu --noconfirm
 check_install_dependencies() {
     local dependencies=(xorg-xrandr imlib2 xwallpaper base-devel libx11 libxft xorg-server xorg-xinit terminus-font dialog libxinerama xcompmgr webkit2gtk gcr exa
      wireplumber unclutter pipewire xdotool xcape go nodejs python python-pip python-setuptools python-wheel rust ocaml opam julia
-      ruby perl lua java-runtime-headless jdk-openjdk scala php npm yarn r revive staticcheck)
+      ruby perl lua java-runtime-headless jdk-openjdk scala php npm yarn r revive staticcheck gopls)
 
     local missing_dependencies=()
     
