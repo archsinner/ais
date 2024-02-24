@@ -1,22 +1,22 @@
 #!/bin/bash
 
+# Display a welcome message using ncurses
+dialog --title "Welcome" --msgbox "Thanks for using archsinner's install script. This script installs a minimal suckless desktop, enjoy!" 10 40
+
 # Check if git is installed, and install it if not
 if ! command -v git &> /dev/null; then
-    echo "Git is not installed. Installing..."
+    dialog --infobox "Git is not installed. Installing..." 0 0
     sudo pacman -S git
 fi
 
 # Check if Vim is installed, and install it if not
 if ! command -v vim &> /dev/null; then
-    echo "Vim is not installed. Installing..."
+    dialog --infobox "Vim is not installed. Installing..." 0 0
     sudo pacman -S vim
 fi
 
 # Install other dependencies
-sudo pacman -Syu --needed base-devel libx11 libxft xorg-server xorg-xinit terminus-font dialog
-
-# Create ~/.local/src directory if it doesn't exist
-mkdir -p ~/.local/src
+sudo pacman -Syu --needed base-devel libx11 libxft xorg-server xorg-xinit terminus-font dialog libxinerama
 
 # Prompt user for username and password
 dialog --inputbox "Enter a username:" 10 40 2> /tmp/username.txt
@@ -28,7 +28,7 @@ PASSWORD=$(cat /tmp/password.txt)
 
 # Check if the user already exists
 if id "$USERNAME" &>/dev/null; then
-    echo "User $USERNAME already exists. Deleting..."
+    dialog --infobox "User $USERNAME already exists. Deleting..." 0 0
     sudo userdel -r "$USERNAME"
 fi
 
@@ -40,6 +40,9 @@ echo "$USERNAME:$PASSWORD" | sudo chpasswd
 
 # Clean up temporary files
 rm /tmp/username.txt /tmp/password.txt
+
+# Create ~/.local/src directory if it doesn't exist
+mkdir -p ~/.local/src
 
 # Display a progress bar
 dialog --gauge "Installing suckless software..." 10 50 0
