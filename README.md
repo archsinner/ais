@@ -46,3 +46,5 @@ After the installation completes, you can log in with your user and start the X 
 Disclaimer
 
  Use this script at your own risk. While efforts have been made to ensure its reliability, the author takes no responsibility for any damages caused by the script's usage.
+ 
+ MOD is Caps lock and esc as well
