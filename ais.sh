@@ -99,9 +99,16 @@ sudo -u "$USERNAME" mkdir -p "/home/$USERNAME/.local/src"
 # Create .local/bin directory in user's home directory
 sudo -u "$USERNAME" mkdir -p "/home/$USERNAME/.local/bin"
 
+# Create .surf/styles directory in user's home directory
+sudo -u "$USERNAME" mkdir -p "/home/$USERNAME/.surf/styles"
+
 # Set ownership and permissions of .local directory
 sudo chown -R "$USERNAME:$USERNAME" "/home/$USERNAME/.local"
 sudo chmod -R 755 "/home/$USERNAME/.local"
+
+# Set ownership and permissions of .local directory
+sudo chown -R "$USERNAME:$USERNAME" "/home/$USERNAME/.surf"
+sudo chmod -R 755 "/home/$USERNAME/.surf"
 
 # Set ownership and permissions of .local/bin directory
 sudo chown -R "$USERNAME:$USERNAME" "/home/$USERNAME/.local/bin"
