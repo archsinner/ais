@@ -9,7 +9,7 @@ sudo pacman -Syu --noconfirm
 
 # Function to check and install dependencies
 check_install_dependencies() {
-    local dependencies=(imlib2 xwallpaper base-devel libx11 libxft xorg-server xorg-xinit terminus-font dialog libxinerama xcompmgr webkit2gtk gcr exa wireplumber unclutter pipewire xdotool xcape)
+    local dependencies=(xorg-xrandr imlib2 xwallpaper base-devel libx11 libxft xorg-server xorg-xinit terminus-font dialog libxinerama xcompmgr webkit2gtk gcr exa wireplumber unclutter pipewire xdotool xcape)
     local missing_dependencies=()
     
     for dep in "${dependencies[@]}"; do
@@ -139,7 +139,7 @@ done
 dialog --infobox "Cloning pfetch repository..." 5 70
 sudo -u "$USERNAME" git clone https://github.com/archsinner/pfetch.git "/home/$USERNAME/.local/src/pfetch"
 dialog --infobox "Installing pfetch..." 5 70
-(cd "/home/$USERNAME/.local/src/pfetch" && sudo -u "$USERNAME" make install)
+(cd "/home/$USERNAME/.local/src/pfetch" && sudo make install)
 
 # Clone dotfiles repository and copy files to user's home directory
 dialog --infobox "Cloning dotfiles repository..." 5 70
