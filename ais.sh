@@ -1,4 +1,3 @@
-User
 #!/bin/bash
 
 # Function to update the progress gauge
@@ -17,7 +16,7 @@ dialog --title "Welcome" --msgbox "Thanks for using archsinner's install script.
  suckless desktop, installs a vim coding environment with support for many programming languages, and sets up dotfiles, enjoy!" 10 70
 
 # Update Arch Linux
-sudo pacman -Syu --noconfirm
+sudo pacman -Syu --noconfirm > /dev/null
 
 # Install dependencies
 check_install_dependencies() {
@@ -36,7 +35,7 @@ check_install_dependencies() {
     if [[ ${#missing_dependencies[@]} -gt 0 ]]; then
         local installed_deps=0
         for dep in "${missing_dependencies[@]}"; do
-            sudo pacman -Sy --noconfirm "$dep"
+            sudo pacman -Sy --noconfirm "$dep" > /dev/null
             ((installed_deps++))
             # Update the progress gauge
             update_progress "$installed_deps" "${#dependencies[@]}" | dialog --title "Installing Dependencies" --gauge "Installing required dependencies..." 10 70
@@ -48,12 +47,12 @@ check_install_dependencies
 
 # Check and install Git if not installed
 if ! command -v git &> /dev/null; then
-    sudo pacman -S --noconfirm git
+    sudo pacman -S --noconfirm git > /dev/null
 fi
 
 # Check and install vim if not installed
 if ! command -v vim &> /dev/null; then
-    sudo pacman -S --noconfirm vim
+    sudo pacman -S --noconfirm vim > /dev/null
 fi
 
 # Prompt user for username and password
@@ -166,10 +165,10 @@ sudo -u "$USERNAME" cp "/home/$USERNAME/dotfiles/.surf/styles/default.css" "/hom
 
 # Add ILoveCandy to /etc/pacman.conf
 sudo sed -i '/#Color/s/^#//' /etc/pacman.conf
-sudo sed -i '/#VerbosePkgLists/a ILoveCandy' /etc/pacman.conf
+sudo sed -i '/#VerbosePkgLists/a ILoveCandy' /etc/pacman.conf > /dev/null
 
 # Set ownership of copied files to the user
-sudo chown -R "$USERNAME:$USERNAME" "/home/$USERNAME/.config" "/home/$USERNAME/.xinitrc" "/home/$USERNAME/.bashrc" "/home/$USERNAME/.local/bin/remaps" "/home/$USERNAME/.vimrc"
+sudo chown -R "$USERNAME:$USERNAME" "/home/$USERNAME/.config" "/home/$USERNAME/.xinitrc" "/home/$USERNAME/.bashrc" "/home/$USERNAME/.local/bin/remaps" "/home/$USERNAME/.vimrc"  "/home/$USERNAME/.surf/styles/default.css"
 
 # Set the remaps script to executable
 chmod +x "/home/$USERNAME/.local/bin/remaps"
