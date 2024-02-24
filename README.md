@@ -23,15 +23,15 @@ Usage
 
 Clone this repository to your local machine:
 
-    git clone <repository_url>
+    git clone https://github.com/archsinner/ais.git
 
 Make the script executable:
 
-    chmod +x install.sh
+    chmod +x ais.sh
 
 Run the script:
 
-    ./install.sh
+    ./ais.sh
 
 Follow the on-screen instructions to proceed with the installation.
 
