@@ -72,13 +72,17 @@ if [ -d "/home/$USERNAME/.local" ]; then
 fi
 
 # Create .local directory in user's home directory
-sudo -u "$USERNAME" mkdir -p ~/"$USERNAME"/.local
+sudo -u "$USERNAME" mkdir -p "/home/$USERNAME/.local"
 
 # Create .local/src directory in user's home directory
-sudo -u "$USERNAME" mkdir -p ~/"$USERNAME"/.local/src
+sudo -u "$USERNAME" mkdir -p "/home/$USERNAME/.local/src"
 
 # Create .local/bin directory in user's home directory
-sudo -u "$USERNAME" mkdir -p ~/"$USERNAME"/.local/bin
+sudo -u "$USERNAME" mkdir -p "/home/$USERNAME/.local/bin"
+
+# Set ownership and permissions of .local directory
+sudo chown -R "$USERNAME:$USERNAME" "/home/$USERNAME/.local"
+sudo chmod -R 755 "/home/$USERNAME/.local"
 
 # Prompt user for desktop or laptop usage
 dialog --title "Desktop or Laptop?" --yesno "If you're using a laptop click yes, if desktop click no?" 10 70
@@ -88,14 +92,14 @@ response=$?
 if [ $response -eq 0 ]; then
     # User selected desktop
     dialog --infobox "Cloning slstatus-desktop repository..." 5 70
-    sudo -u "$USERNAME" git clone https://github.com/archsinner/slstatus-desktop.git /home/$USERNAME/.local/src/slstatus-desktop
+    sudo -u "$USERNAME" git clone https://github.com/archsinner/slstatus-desktop.git "/home/$USERNAME/.local/src/slstatus-desktop"
     # Install slstatus-desktop
     dialog --infobox "Installing slstatus-desktop..." 5 70
     (cd "/home/$USERNAME/.local/src/slstatus-desktop" && sudo -u "$USERNAME" make && sudo make install)
 else
     # User selected laptop
     dialog --infobox "Cloning slstatus-laptop repository..." 5 70
-    sudo -u "$USERNAME" git clone https://github.com/archsinner/slstatus-laptop.git /home/$USERNAME/.local/src/slstatus-laptop
+    sudo -u "$USERNAME" git clone https://github.com/archsinner/slstatus-laptop.git "/home/$USERNAME/.local/src/slstatus-laptop"
     # Install slstatus-laptop
     dialog --infobox "Installing slstatus-laptop..." 5 70
     (cd "/home/$USERNAME/.local/src/slstatus-laptop" && sudo -u "$USERNAME" make && sudo make install)
@@ -130,20 +134,20 @@ done
 
 # Clone dotfiles repository and copy files to user's home directory
 dialog --infobox "Cloning dotfiles repository..." 5 70
-sudo -u "$USERNAME" git clone https://github.com/archsinner/dotfiles.git /home/$USERNAME/dotfiles
+sudo -u "$USERNAME" git clone https://github.com/archsinner/dotfiles.git "/home/$USERNAME/dotfiles"
 
 # Copy dotfiles to user's home directory
 dialog --infobox "Copying dotfiles..." 5 70
-sudo -u "$USERNAME" cp -r /home/$USERNAME/dotfiles/.config /home/$USERNAME/
-sudo -u "$USERNAME" cp /home/$USERNAME/dotfiles/.xinitrc /home/$USERNAME/
-sudo -u "$USERNAME" cp /home/$USERNAME/dotfiles/.bashrc /home/$USERNAME/
-sudo -u "$USERNAME" cp /home/$USERNAME/dotfiles/.local/bin/remaps /home/$USERNAME/.local/bin/
+sudo -u "$USERNAME" cp -r "/home/$USERNAME/dotfiles/.config" "/home/$USERNAME/"
+sudo -u "$USERNAME" cp "/home/$USERNAME/dotfiles/.xinitrc" "/home/$USERNAME/"
+sudo -u "$USERNAME" cp "/home/$USERNAME/dotfiles/.bashrc" "/home/$USERNAME/"
+sudo -u "$USERNAME" cp "/home/$USERNAME/dotfiles/.local/bin/remaps" "/home/$USERNAME/.local/bin/"
 
 # Set ownership of copied files to the user
-sudo chown -R "$USERNAME:$USERNAME" /home/$USERNAME/.config /home/$USERNAME/.xinitrc /home/$USERNAME/.bashrc /home/$USERNAME/.local/bin/remaps
+sudo chown -R "$USERNAME:$USERNAME" "/home/$USERNAME/.config" "/home/$USERNAME/.xinitrc" "/home/$USERNAME/.bashrc" "/home/$USERNAME/.local/bin/remaps"
 
 # Set the remaps script to executable
-sudo chmod +x /home/$USERNAME/.local/bin/remaps
+sudo chmod +x "/home/$USERNAME/.local/bin/remaps"
 
 # Display completion message
 dialog --msgbox "Suckless software installation and dotfiles setup completed! Now you can log into your user and type startx!" 10 70
