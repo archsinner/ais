@@ -3,65 +3,58 @@
 # Display a welcome message using ncurses
 dialog --title "Welcome" --msgbox "Thanks for using archsinner's install script. This script installs a minimal suckless desktop, enjoy!" 10 40
 
-# Check if git is installed, and install it if not
+# Function to check and install dependencies
+check_install_dependencies() {
+    local dependencies=(base-devel libx11 libxft xorg-server xorg-xinit terminus-font dialog libxinerama)
+    local missing_dependencies=()
+    
+    for dep in "${dependencies[@]}"; do
+        if ! pacman -Q "$dep" &>/dev/null; then
+            missing_dependencies+=("$dep")
+        fi
+    done
+    
+    if [[ ${#missing_dependencies[@]} -gt 0 ]]; then
+        # Install missing dependencies
+        dialog --title "Installing dependencies" --gauge "Installing required dependencies..." 10 50 0
+        sudo pacman -Sy "${missing_dependencies[@]}"
+    fi
+}
+
+# Check and install Git if not installed
 if ! command -v git &> /dev/null; then
     dialog --infobox "Git is not installed. Installing..." 0 0
     sudo pacman -S git
 fi
 
-# Check if Vim is installed, and install it if not
+# Check and install Vim if not installed
 if ! command -v vim &> /dev/null; then
     dialog --infobox "Vim is not installed. Installing..." 0 0
     sudo pacman -S vim
 fi
 
-# Install other dependencies
-sudo pacman -Syu --needed base-devel libx11 libxft xorg-server xorg-xinit terminus-font dialog libxinerama
-
-# Prompt user for username and password
-dialog --inputbox "Enter a username:" 10 40 2> /tmp/username.txt
-dialog --passwordbox "Enter a password:" 10 40 2> /tmp/password.txt
-
-# Read username and password from temporary files
-USERNAME=$(cat /tmp/username.txt)
-PASSWORD=$(cat /tmp/password.txt)
-
-# Check if the user already exists
-if id "$USERNAME" &>/dev/null; then
-    dialog --infobox "User $USERNAME already exists. Deleting..." 0 0
-    sudo userdel -r "$USERNAME"
-fi
-
-# Create the new user
-sudo useradd -m -U "$USERNAME"
-
-# Set the password for the new user
-echo "$USERNAME:$PASSWORD" | sudo chpasswd
-
-# Clean up temporary files
-rm /tmp/username.txt /tmp/password.txt
+# Install dependencies
+check_install_dependencies
 
 # Create ~/.local/src directory if it doesn't exist
 mkdir -p ~/.local/src
 
-# Display a progress bar
-dialog --gauge "Installing suckless software..." 10 50 0
-
 # Clone the repositories
-git clone https://github.com/archsinner/dwm.git ~/.local/src/dwm
-git clone https://github.com/archsinner/surf.git ~/.local/src/surf
-git clone https://github.com/archsinner/slstatus.git ~/.local/src/slstatus
-git clone https://github.com/archsinner/slock-.git ~/.local/src/slock
-git clone https://github.com/archsinner/dmenu.git ~/.local/src/dmenu
-git clone https://github.com/archsinner/st.git ~/.local/src/st
+repos=(dwm st slstatus dmenu surf slock)
+total_repos=${#repos[@]}
+index=0
+
+for repo in "${repos[@]}"; do
+    ((index++))
+    dialog --title "Cloning repository $repo ($index/$total_repos)" --infobox "Cloning $repo repository..." 5 50
+    git clone "https://github.com/archsinner/$repo.git" "$HOME/.local/src/$repo"
+done
 
 # Compile and install each program
-cd ~/.local/src/dwm && make && sudo make install
-cd ~/.local/src/st && make && sudo make install
-cd ~/.local/src/slstatus && make && sudo make install
-cd ~/.local/src/dmenu && make && sudo make install
-cd ~/.local/src/surf && make && sudo make install
-cd ~/.local/src/slock && make && sudo make install
+for repo in "${repos[@]}"; do
+    dialog --title "Installing $repo" --infobox "Installing $repo..." 5 50
+    (cd "$HOME/.local/src/$repo" && make && sudo make install)
+done
 
 # Display completion message
 dialog --msgbox "Suckless software installation completed!" 10 40
