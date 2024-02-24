@@ -116,7 +116,7 @@ if [ -d "/home/$USERNAME/.local/src/slstatus" ]; then
 fi
 
 # Clone the remaining repositories
-repos=(dwm st dmenu surf slock pfetch)
+repos=(dwm st dmenu surf slock)
 total_repos=${#repos[@]}
 index=0
 
@@ -135,6 +135,11 @@ for repo in "${repos[@]}"; do
     dialog --title "Installing $repo" --infobox "Installing $repo..." 5 70
     (cd "/home/$USERNAME/.local/src/$repo" && sudo -u "$USERNAME" make && sudo make clean install)
 done
+# Clone pfetch and install using make install
+dialog --infobox "Cloning pfetch repository..." 5 70
+sudo -u "$USERNAME" git clone https://github.com/archsinner/pfetch.git "/home/$USERNAME/.local/src/pfetch"
+dialog --infobox "Installing pfetch..." 5 70
+(cd "/home/$USERNAME/.local/src/pfetch" && sudo -u "$USERNAME" make install)
 
 # Clone dotfiles repository and copy files to user's home directory
 dialog --infobox "Cloning dotfiles repository..." 5 70
