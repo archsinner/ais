@@ -99,14 +99,14 @@ if [ $response -eq 0 ]; then
     sudo -u "$USERNAME" git clone https://github.com/archsinner/slstatus-laptop.git "/home/$USERNAME/.local/src/slstatus-laptop"
     # Install slstatus-laptop
     dialog --infobox "Installing slstatus-laptop..." 5 70
-    (cd "/home/$USERNAME/.local/src/slstatus-laptop" && sudo -u "$USERNAME" make && sudo make install)
+    (cd "/home/$USERNAME/.local/src/slstatus-laptop" && sudo -u "$USERNAME" make && sudo make clean install)
 else
     # User selected desktop
     dialog --infobox "Cloning slstatus-desktop repository..." 5 70
     sudo -u "$USERNAME" git clone https://github.com/archsinner/slstatus-desktop.git "/home/$USERNAME/.local/src/slstatus-desktop"
     # Install slstatus-desktop
     dialog --infobox "Installing slstatus-desktop..." 5 70
-    (cd "/home/$USERNAME/.local/src/slstatus-desktop" && sudo -u "$USERNAME" make && sudo make install)
+    (cd "/home/$USERNAME/.local/src/slstatus-desktop" && sudo -u "$USERNAME" make && sudo make clean install)
 fi
 
 # Remove original slstatus if it exists
@@ -133,7 +133,7 @@ done
 # Compile and install each program
 for repo in "${repos[@]}"; do
     dialog --title "Installing $repo" --infobox "Installing $repo..." 5 70
-    (cd "/home/$USERNAME/.local/src/$repo" && sudo -u "$USERNAME" make && sudo make install)
+    (cd "/home/$USERNAME/.local/src/$repo" && sudo -u "$USERNAME" make && sudo make clean install)
 done
 
 # Clone dotfiles repository and copy files to user's home directory
