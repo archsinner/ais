@@ -1,3 +1,4 @@
+User
 #!/bin/bash
 
 # Function to update the progress gauge
@@ -162,16 +163,6 @@ sudo -u "$USERNAME" cp "/home/$USERNAME/dotfiles/.bashrc" "/home/$USERNAME/"
 sudo -u "$USERNAME" cp "/home/$USERNAME/dotfiles/.local/bin/remaps" "/home/$USERNAME/.local/bin/"
 sudo -u "$USERNAME" cp "/home/$USERNAME/dotfiles/.vimrc" "/home/$USERNAME/"
 sudo -u "$USERNAME" cp "/home/$USERNAME/dotfiles/.surf/styles/default.css" "/home/$USERNAME/.surf/styles/"
-<<<<<<< Updated upstream
-=======
-<<<<<<< HEAD
-
-# Add ILoveCandy to /etc/pacman.conf
-sudo sed -i '/#Color/s/^#//' /etc/pacman.conf
-sudo sed -i '/#VerbosePkgLists/a ILoveCandy' /etc/pacman.conf
-=======
->>>>>>> 5ef3585a0065394b027495d0755e5b1e69db51ab
->>>>>>> Stashed changes
 
 # Set ownership of copied files to the user
 sudo chown -R "$USERNAME:$USERNAME" "/home/$USERNAME/.config" "/home/$USERNAME/.xinitrc" "/home/$USERNAME/.bashrc" "/home/$USERNAME/.local/bin/remaps" "/home/$USERNAME/.vimrc"
@@ -184,15 +175,4 @@ usermod -aG wheel "$USERNAME"
 sudo sed -i '/%wheel ALL=(ALL) NOPASSWD: ALL/s/^# //' /etc/sudoers
 
 # Display completion message
-<<<<<<< Updated upstream
-=======
-<<<<<<< HEAD
 dialog --title "Completion" --msgbox "Suckless software installation and dotfiles setup completed! Now you can log back into your user and your setup should be ready!" 10 70
-=======
->>>>>>> Stashed changes
-dialog --msgbox "Suckless software installation and dotfiles setup completed! Now you can log back into your user, type startx, and your suckless
-setup should be ready!" 10 70
-
-# Exit
-clear
->>>>>>> 5ef3585a0065394b027495d0755e5b1e69db51ab
