@@ -65,6 +65,15 @@ echo "$USERNAME:$PASSWORD" | sudo chpasswd
 # Clean up temporary files
 rm /tmp/username.txt /tmp/password.txt /tmp/password_confirm.txt
 
+# Remove original .local if it exists
+if [ -d "/home/$USERNAME/.local" ]; then
+    dialog --infobox "Removing original .local repository..." 5 70
+    sudo -u "$USERNAME" rm -rf "/home/$USERNAME/.local/"
+fi
+
+# Create .local directory in user's home directory
+sudo -u "$USERNAME" mkdir -p ~/"$USERNAME"/.local
+
 # Create .local/src directory in user's home directory
 sudo -u "$USERNAME" mkdir -p ~/"$USERNAME"/.local/src
 
@@ -137,7 +146,7 @@ sudo chown -R "$USERNAME:$USERNAME" /home/$USERNAME/.config /home/$USERNAME/.xin
 sudo chmod +x /home/$USERNAME/.local/bin/remaps
 
 # Display completion message
-dialog --msgbox "Suckless software installation and dotfiles setup completed!" 10 70
+dialog --msgbox "Suckless software installation and dotfiles setup completed! Now you can log into your user and type startx!" 10 70
 
 # Exit
 clear
