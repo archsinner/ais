@@ -1,7 +1,8 @@
 #!/bin/bash
 
 # Display a welcome message using ncurses
-dialog --title "Welcome" --msgbox "Thanks for using archsinner's install script. This script updates Arch Linux, installs a minimal suckless desktop, and sets up dotfiles, enjoy!" 10 70
+dialog --title "Welcome" --msgbox "Thanks for using archsinner's install script. This script updates Arch Linux, installs a minimal
+ suckless desktop, installs a vim coding environment with support for many programming languages, and sets up dotfiles, enjoy!" 10 70
 
 # Update Arch Linux
 dialog --infobox "Updating Arch Linux..." 0 0
@@ -9,7 +10,10 @@ sudo pacman -Syu --noconfirm
 
 # Function to check and install dependencies
 check_install_dependencies() {
-    local dependencies=(xorg-xrandr imlib2 xwallpaper base-devel libx11 libxft xorg-server xorg-xinit terminus-font dialog libxinerama xcompmgr webkit2gtk gcr exa wireplumber unclutter pipewire xdotool xcape go nodejs python python-pip python-setuptools python-wheel rust ocaml opam julia ruby perl lua java-runtime-headless jdk-openjdk scala php npm yarn r)
+    local dependencies=(xorg-xrandr imlib2 xwallpaper base-devel libx11 libxft xorg-server xorg-xinit terminus-font dialog libxinerama xcompmgr webkit2gtk gcr exa
+     wireplumber unclutter pipewire xdotool xcape go nodejs python python-pip python-setuptools python-wheel rust ocaml opam julia
+      ruby perl lua java-runtime-headless jdk-openjdk scala php npm yarn r revive)
+
     local missing_dependencies=()
     
     for dep in "${dependencies[@]}"; do
@@ -163,7 +167,8 @@ sudo chown -R "$USERNAME:$USERNAME" "/home/$USERNAME/.config" "/home/$USERNAME/.
 sudo chmod +x "/home/$USERNAME/.local/bin/remaps"
 
 # Display completion message
-dialog --msgbox "Suckless software installation and dotfiles setup completed! Now you can log into your user and type startx!" 10 70
+dialog --msgbox "Suckless software installation and dotfiles setup completed! Now you can log back into your user and your suckless
+setup should be ready!" 10 70
 
 # Exit
 clear
