@@ -79,17 +79,17 @@ response=$?
 if [ $response -eq 0 ]; then
     # User selected desktop
     dialog --infobox "Cloning slstatus-desktop repository..." 5 70
-    sudo -u "$USERNAME" git clone https://github.com/archsinner/slstatus-desktop.git /home/$USERNAME/.local/src/slstatus
+    sudo -u "$USERNAME" git clone https://github.com/archsinner/slstatus-desktop.git /home/$USERNAME/.local/src/slstatus-desktop
     # Install slstatus-desktop
     dialog --infobox "Installing slstatus-desktop..." 5 70
-    (cd "/home/$USERNAME/.local/src/slstatus" && sudo -u "$USERNAME" make && sudo make install)
+    (cd "/home/$USERNAME/.local/src/slstatus-desktop" && sudo -u "$USERNAME" make && sudo make install)
 else
     # User selected laptop
     dialog --infobox "Cloning slstatus-laptop repository..." 5 70
-    sudo -u "$USERNAME" git clone https://github.com/archsinner/slstatus-laptop.git /home/$USERNAME/.local/src/slstatus
+    sudo -u "$USERNAME" git clone https://github.com/archsinner/slstatus-laptop.git /home/$USERNAME/.local/src/slstatus-laptop
     # Install slstatus-laptop
     dialog --infobox "Installing slstatus-laptop..." 5 70
-    (cd "/home/$USERNAME/.local/src/slstatus" && sudo -u "$USERNAME" make && sudo make install)
+    (cd "/home/$USERNAME/.local/src/slstatus-laptop" && sudo -u "$USERNAME" make && sudo make install)
 fi
 
 # Remove original slstatus if it exists
