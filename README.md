@@ -47,4 +47,4 @@ Disclaimer
 
  Use this script at your own risk. While efforts have been made to ensure its reliability, the author takes no responsibility for any damages caused by the script's usage.
  
- MOD is Caps lock and esc as well
+ MOD is Caps lock and esc as well, keybinds similar to larbs.
