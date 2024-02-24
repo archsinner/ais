@@ -148,13 +148,13 @@ for repo in "${repos[@]}"; do
     ((index++))
     target_dir="/home/$USERNAME/.local/src/$repo"
     if [ ! -d "$target_dir" ]; then
-        sudo -u "$USERNAME" git clone "https://github.com/archsinner/$repo.git" "$target_dir"
+        sudo -u "$USERNAME" git clone "https://github.com/archsinner/$repo.git" "$target_dir" > /dev/null
     else
         echo "Directory $target_dir already exists. Skipping cloning for $repo."
     fi
 
     if [ -d "$target_dir" ]; then
-        (cd "$target_dir" && sudo -u "$USERNAME" make && sudo make clean install)
+        (cd "$target_dir" && sudo -u "$USERNAME" make > /dev/null && sudo make clean install > /dev/null)
     else
         echo "Failed to clone $repo or directory $target_dir does not exist."
     fi
