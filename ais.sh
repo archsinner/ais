@@ -36,8 +36,39 @@ fi
 # Install dependencies
 check_install_dependencies
 
-# Create ~/.local/src directory if it doesn't exist
-mkdir -p ~/.local/src
+# Prompt user for username and password
+dialog --inputbox "Enter a username:" 10 40 2> /tmp/username.txt
+dialog --passwordbox "Enter a password:" 10 40 2> /tmp/password.txt
+dialog --passwordbox "Confirm password:" 10 40 2> /tmp/password_confirm.txt
+
+# Read username and passwords from temporary files
+USERNAME=$(cat /tmp/username.txt)
+PASSWORD=$(cat /tmp/password.txt)
+PASSWORD_CONFIRM=$(cat /tmp/password_confirm.txt)
+
+# Check if passwords match
+if [ "$PASSWORD" != "$PASSWORD_CONFIRM" ]; then
+    dialog --msgbox "Passwords do not match. Please try again." 10 40
+    exit 1
+fi
+
+# Check if the user already exists
+if id "$USERNAME" &>/dev/null; then
+    dialog --infobox "User $USERNAME already exists. Deleting..." 0 0
+    sudo userdel -r "$USERNAME"
+fi
+
+# Create the new user
+sudo useradd -m -U "$USERNAME"
+
+# Set the password for the new user
+echo "$USERNAME:$PASSWORD" | sudo chpasswd
+
+# Clean up temporary files
+rm /tmp/username.txt /tmp/password.txt /tmp/password_confirm.txt
+
+# Create .local/src directory in user's home directory
+sudo -u "$USERNAME" mkdir -p ~/"$USERNAME"/.local/src
 
 # Clone the repositories
 repos=(dwm st slstatus dmenu surf slock)
@@ -47,13 +78,13 @@ index=0
 for repo in "${repos[@]}"; do
     ((index++))
     dialog --title "Cloning repository $repo ($index/$total_repos)" --infobox "Cloning $repo repository..." 5 50
-    git clone "https://github.com/archsinner/$repo.git" "$HOME/.local/src/$repo"
+    sudo -u "$USERNAME" git clone "https://github.com/archsinner/$repo.git" "/home/$USERNAME/.local/src/$repo"
 done
 
 # Compile and install each program
 for repo in "${repos[@]}"; do
     dialog --title "Installing $repo" --infobox "Installing $repo..." 5 50
-    (cd "$HOME/.local/src/$repo" && make && sudo make install)
+    (cd "/home/$USERNAME/.local/src/$repo" && sudo -u "$USERNAME" make && sudo make install)
 done
 
 # Display completion message
