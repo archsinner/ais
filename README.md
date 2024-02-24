@@ -2,9 +2,9 @@
 ![Screenshot 2024-02-24 003416](https://github.com/archsinner/ais/assets/74122523/5cbee2b8-e539-4c8b-ada0-c5fb2e7e7972)
 ![Screenshot 2024-02-24 012434](https://github.com/archsinner/ais/assets/74122523/65a9629d-4b55-40f2-be67-43a9c9105219)
 
-Minimalistic Suckless Install Script for Go-To Programmer Environment
+Minimalistic Suckless Install Script for a Programmer Environment
 
-This script automates the installation process of a minimalistic suckless desktop environment along with essential tools and configurations tailored for a Go programmer's workflow on Arch Linux.
+This script automates the installation process of a minimalistic suckless desktop environment along with essential tools and configurations tailored for a programmer's workflow on Arch Linux.
 Features
 
 Updates Arch Linux to ensure system packages are up-to-date.
