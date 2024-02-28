@@ -2,7 +2,7 @@
 
 # Check if dialog package is installed, if not, install it
 if ! pacman -Q dialog &>/dev/null; then
-    sudo pacman -Sy --noconfirm dialog > /dev/null
+    pacman -Sy --noconfirm dialog > /dev/null
 fi
 
 # Function to update the progress gauge
@@ -15,7 +15,7 @@ update_progress() {
 
 # Check if dialog package is installed, if not, install it
 if ! command -v dialog &> /dev/null; then
-    sudo pacman -S --noconfirm dialog > /dev/null
+    pacman -S --noconfirm dialog > /dev/null
 fi
 
 # Total number of steps in the script
@@ -43,21 +43,21 @@ fi
 
 # Check if the user already exists
 if id "$USERNAME" &>/dev/null; then
-    sudo userdel -r "$USERNAME"
+    userdel -r "$USERNAME"
 fi
 
 # Create the new user
-sudo useradd -m -U "$USERNAME"
+useradd -m -U "$USERNAME"
 update_progress 5 "$total_steps"
 
 # Set the password for the new user
-echo "$USERNAME:$PASSWORD" | sudo chpasswd
+echo "$USERNAME:$PASSWORD" | chpasswd
 
 # Clean up temporary files
 rm /tmp/username.txt /tmp/password.txt /tmp/password_confirm.txt
 
 # Update Arch Linux
-sudo pacman -Syu --noconfirm > /dev/null
+pacman -Syu --noconfirm > /dev/null
 update_progress 1 "$total_steps"
 
 # Install dependencies
@@ -77,7 +77,7 @@ check_install_dependencies() {
     if [[ ${#missing_dependencies[@]} -gt 0 ]]; then
         local installed_deps=0
         for dep in "${missing_dependencies[@]}"; do
-            sudo pacman -Sy --noconfirm "$dep" > /dev/null
+            pacman -Sy --noconfirm "$dep" > /dev/null
             ((installed_deps++))
             # Update the progress gauge
             update_progress "$installed_deps" "${#dependencies[@]}"
@@ -90,46 +90,46 @@ update_progress 2 "$total_steps"
 
 # Check and install Git if not installed
 if ! command -v git &> /dev/null; then
-    sudo pacman -S --noconfirm git > /dev/null
+    pacman -S --noconfirm git > /dev/null
 fi
 update_progress 3 "$total_steps"
 
 # Check and install vim if not installed
 if ! command -v vim &> /dev/null; then
-    sudo pacman -S --noconfirm vim > /dev/null
+    pacman -S --noconfirm vim > /dev/null
 fi
 update_progress 4 "$total_steps"
 
 # Remove original .local if it exists
 if [ -d "/home/$USERNAME/.local" ]; then
-    sudo -u "$USERNAME" rm -rf "/home/$USERNAME/.local/"
+    rm -rf "/home/$USERNAME/.local/"
 fi
 
 # Create .local directory in user's home directory
-sudo -u "$USERNAME" mkdir -p "/home/$USERNAME/.local"
+mkdir -p "/home/$USERNAME/.local"
 update_progress 6 "$total_steps"
 
 # Create .local/src directory in user's home directory
-sudo -u "$USERNAME" mkdir -p "/home/$USERNAME/.local/src"
+mkdir -p "/home/$USERNAME/.local/src"
 
 # Create .local/bin directory in user's home directory
-sudo -u "$USERNAME" mkdir -p "/home/$USERNAME/.local/bin"
+mkdir -p "/home/$USERNAME/.local/bin"
 
 # Create .surf/styles directory in user's home directory
-sudo -u "$USERNAME" mkdir -p "/home/$USERNAME/.surf/styles"
+mkdir -p "/home/$USERNAME/.surf/styles"
 
 # Set ownership and permissions of .local directory
-sudo chown -R "$USERNAME:$USERNAME" "/home/$USERNAME/.local"
-sudo chmod -R 755 "/home/$USERNAME/.local"
+chown -R "$USERNAME:$USERNAME" "/home/$USERNAME/.local"
+chmod -R 755 "/home/$USERNAME/.local"
 update_progress 7 "$total_steps"
 
 # Set ownership and permissions of .local directory
-sudo chown -R "$USERNAME:$USERNAME" "/home/$USERNAME/.surf"
-sudo chmod -R 755 "/home/$USERNAME/.surf"
+chown -R "$USERNAME:$USERNAME" "/home/$USERNAME/.surf"
+chmod -R 755 "/home/$USERNAME/.surf"
 
 # Set ownership and permissions of .local/bin directory
-sudo chown -R "$USERNAME:$USERNAME" "/home/$USERNAME/.local/bin"
-sudo chmod -R 755 "/home/$USERNAME/.local/bin"
+chown -R "$USERNAME:$USERNAME" "/home/$USERNAME/.local/bin"
+chmod -R 755 "/home/$USERNAME/.local/bin"
 
 # Prompt user for desktop or laptop usage
 dialog --title "Desktop or Laptop?" --yesno "Are you setting up a laptop or desktop? Choose 'Yes' for laptop or 'No' for desktop." 10 70
@@ -139,17 +139,17 @@ response=$?
 if [ $response -eq 0 ]; then
     # User selected laptop
     sudo -u "$USERNAME" git clone https://github.com/archsinner/slstatus-laptop.git "/home/$USERNAME/.local/src/slstatus-laptop"
-    (cd "/home/$USERNAME/.local/src/slstatus-laptop" && sudo -u "$USERNAME" make && sudo make clean install)
+    (cd "/home/$USERNAME/.local/src/slstatus-laptop" && sudo -u "$USERNAME" make && make clean install)
 else
     # User selected desktop
     sudo -u "$USERNAME" git clone https://github.com/archsinner/slstatus-desktop.git "/home/$USERNAME/.local/src/slstatus-desktop"
-    (cd "/home/$USERNAME/.local/src/slstatus-desktop" && sudo -u "$USERNAME" make && sudo make clean install)
+    (cd "/home/$USERNAME/.local/src/slstatus-desktop" && sudo -u "$USERNAME" make && make clean install)
 fi
 update_progress 8 "$total_steps"
 
 # Remove original slstatus if it exists
 if [ -d "/home/$USERNAME/.local/src/slstatus" ]; then
-    sudo -u "$USERNAME" rm -rf "/home/$USERNAME/.local/src/slstatus"
+    rm -rf "/home/$USERNAME/.local/src/slstatus"
 fi
 
 # Clone the remaining repositories including slock
@@ -167,7 +167,7 @@ for repo in "${repos[@]}"; do
     fi
 
     if [ -d "$target_dir" ]; then
-        (cd "$target_dir" && sudo -u "$USERNAME" make > /dev/null && sudo make clean install > /dev/null) | {
+        (cd "$target_dir" && sudo -u "$USERNAME" make > /dev/null && make clean install > /dev/null) | {
             while read -r line; do
                 update_progress "$index" "$total_repos" | dialog --title "Compiling $repo" --gauge "$line" 10 70
             done
@@ -197,19 +197,19 @@ sudo -u "$USERNAME" cp "/home/$USERNAME/dotfiles/.surf/styles/default.css" "/hom
 update_progress 15 "$total_steps"
 
 # Add ILoveCandy to /etc/pacman.conf
-sudo sed -i '/#Color/s/^#//' /etc/pacman.conf
-sudo sed -i '/#VerbosePkgLists/a ILoveCandy' /etc/pacman.conf > /dev/null
+sed -i '/#Color/s/^#//' /etc/pacman.conf
+sed -i '/#VerbosePkgLists/a ILoveCandy' /etc/pacman.conf > /dev/null
 update_progress 16 "$total_steps"
 
 # Set ownership of copied files to the user
-sudo chown -R "$USERNAME:$USERNAME" "/home/$USERNAME/.config" "/home/$USERNAME/.xinitrc"  "/home/$USERNAME/.bash_profile" "/home/$USERNAME/.bashrc" "/home/$USERNAME/.local/bin/remaps" "/home/$USERNAME/.vimrc"  "/home/$USERNAME/.surf/styles/default.css"
+chown -R "$USERNAME:$USERNAME" "/home/$USERNAME/.config" "/home/$USERNAME/.xinitrc"  "/home/$USERNAME/.bash_profile" "/home/$USERNAME/.bashrc" "/home/$USERNAME/.local/bin/remaps" "/home/$USERNAME/.vimrc"  "/home/$USERNAME/.surf/styles/default.css"
 
 # Set the remaps script to executable
 chmod +x "/home/$USERNAME/.local/bin/remaps"
 
 # Add user to the wheel group and uncomment NOPASSWD in sudoers file
 usermod -aG wheel "$USERNAME"
-sudo sed -i '/%wheel ALL=(ALL) NOPASSWD: ALL/s/^# //' /etc/sudoers
+sed -i '/%wheel ALL=(ALL) NOPASSWD: ALL/s/^# //' /etc/sudoers
 
 # Display completion message
 dialog --title "Completion" --msgbox "Suckless software installation and dotfiles setup completed! Now you can log back into your user and your setup should be ready!" 10 70
