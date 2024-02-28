@@ -1,6 +1,5 @@
 #!/bin/bash
 
-#!/bin/bash
 
 # Check if dialog package is installed, if not, install it
 if ! pacman -Q dialog &>/dev/null; then
@@ -15,6 +14,11 @@ update_progress() {
     echo "$progress"
 }
 
+# Check if dialog package is installed, if not, install it
+if ! command -v dialog &> /dev/null; then
+    sudo pacman -S --noconfirm dialog > /dev/null
+fi
+
 # Total number of steps in the script
 total_steps=17
 
@@ -24,6 +28,7 @@ dialog --title "Welcome" --msgbox "Thanks for using archsinner's install script.
 
 # Update Arch Linux
 sudo pacman -Syu --noconfirm > /dev/null
+update_progress 1 "$total_steps"
 
 # Install dependencies
 check_install_dependencies() {
@@ -45,22 +50,25 @@ check_install_dependencies() {
             sudo pacman -Sy --noconfirm "$dep" > /dev/null
             ((installed_deps++))
             # Update the progress gauge
-            update_progress "$installed_deps" "${#dependencies[@]}" | dialog --title "Installing Dependencies" --gauge "Installing required dependencies..." 10 70
+            update_progress "$installed_deps" "${#dependencies[@]}"
         done
     fi
 }
 
 check_install_dependencies
+update_progress 2 "$total_steps"
 
 # Check and install Git if not installed
 if ! command -v git &> /dev/null; then
     sudo pacman -S --noconfirm git > /dev/null
 fi
+update_progress 3 "$total_steps"
 
 # Check and install vim if not installed
 if ! command -v vim &> /dev/null; then
     sudo pacman -S --noconfirm vim > /dev/null
 fi
+update_progress 4 "$total_steps"
 
 # Prompt user for username and password
 dialog --inputbox "Enter a username:" 10 70 2> /tmp/username.txt
@@ -85,6 +93,7 @@ fi
 
 # Create the new user
 sudo useradd -m -U "$USERNAME"
+update_progress 5 "$total_steps"
 
 # Set the password for the new user
 echo "$USERNAME:$PASSWORD" | sudo chpasswd
@@ -99,6 +108,7 @@ fi
 
 # Create .local directory in user's home directory
 sudo -u "$USERNAME" mkdir -p "/home/$USERNAME/.local"
+update_progress 6 "$total_steps"
 
 # Create .local/src directory in user's home directory
 sudo -u "$USERNAME" mkdir -p "/home/$USERNAME/.local/src"
@@ -112,6 +122,7 @@ sudo -u "$USERNAME" mkdir -p "/home/$USERNAME/.surf/styles"
 # Set ownership and permissions of .local directory
 sudo chown -R "$USERNAME:$USERNAME" "/home/$USERNAME/.local"
 sudo chmod -R 755 "/home/$USERNAME/.local"
+update_progress 7 "$total_steps"
 
 # Set ownership and permissions of .local directory
 sudo chown -R "$USERNAME:$USERNAME" "/home/$USERNAME/.surf"
@@ -135,16 +146,12 @@ else
     sudo -u "$USERNAME" git clone https://github.com/archsinner/slstatus-desktop.git "/home/$USERNAME/.local/src/slstatus-desktop"
     (cd "/home/$USERNAME/.local/src/slstatus-desktop" && sudo -u "$USERNAME" make && sudo make clean install)
 fi
+update_progress 8 "$total_steps"
 
 # Remove original slstatus if it exists
 if [ -d "/home/$USERNAME/.local/src/slstatus" ]; then
     sudo -u "$USERNAME" rm -rf "/home/$USERNAME/.local/src/slstatus"
 fi
-
-# Clone the remaining repositories including slock
-repos=(dwm st dmenu surf slock)
-total_repos=${#repos[@]}
-index=0
 
 # Clone the remaining repositories including slock
 repos=(dwm st dmenu surf slock)
@@ -174,9 +181,11 @@ done
 # Clone pfetch and install using make install
 sudo -u "$USERNAME" git clone https://github.com/archsinner/pfetch.git "/home/$USERNAME/.local/src/pfetch"
 (cd "/home/$USERNAME/.local/src/pfetch" && sudo make install)
+update_progress 13 "$total_steps"
 
 # Clone dotfiles repository and copy files to user's home directory
 sudo -u "$USERNAME" git clone https://github.com/archsinner/dotfiles.git "/home/$USERNAME/dotfiles"
+update_progress 14 "$total_steps"
 
 # Copy dotfiles to user's home directory
 sudo -u "$USERNAME" cp -r "/home/$USERNAME/dotfiles/.config" "/home/$USERNAME/"
@@ -185,10 +194,12 @@ sudo -u "$USERNAME" cp "/home/$USERNAME/dotfiles/.bashrc" "/home/$USERNAME/"
 sudo -u "$USERNAME" cp "/home/$USERNAME/dotfiles/.local/bin/remaps" "/home/$USERNAME/.local/bin/"
 sudo -u "$USERNAME" cp "/home/$USERNAME/dotfiles/.vimrc" "/home/$USERNAME/"
 sudo -u "$USERNAME" cp "/home/$USERNAME/dotfiles/.surf/styles/default.css" "/home/$USERNAME/.surf/styles/"
+update_progress 15 "$total_steps"
 
 # Add ILoveCandy to /etc/pacman.conf
 sudo sed -i '/#Color/s/^#//' /etc/pacman.conf
 sudo sed -i '/#VerbosePkgLists/a ILoveCandy' /etc/pacman.conf > /dev/null
+update_progress 16 "$total_steps"
 
 # Set ownership of copied files to the user
 sudo chown -R "$USERNAME:$USERNAME" "/home/$USERNAME/.config" "/home/$USERNAME/.xinitrc" "/home/$USERNAME/.bashrc" "/home/$USERNAME/.local/bin/remaps" "/home/$USERNAME/.vimrc"  "/home/$USERNAME/.surf/styles/default.css"
@@ -202,3 +213,4 @@ sudo sed -i '/%wheel ALL=(ALL) NOPASSWD: ALL/s/^# //' /etc/sudoers
 
 # Display completion message
 dialog --title "Completion" --msgbox "Suckless software installation and dotfiles setup completed! Now you can log back into your user and your setup should be ready!" 10 70
+update_progress "$total_steps" "$total_steps"
