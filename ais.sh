@@ -47,11 +47,10 @@ if id "$USERNAME" &>/dev/null; then
 fi
 
 # Create the new user
-useradd -m -U "$USERNAME"
-update_progress 5 "$total_steps"
+useradd -m -U "$USERNAME" && update_progress 5 "$total_steps"
 
 # Set the password for the new user
-echo "$USERNAME:$PASSWORD" | chpasswd
+echo "$USERNAME:$PASSWORD" | chpasswd && update_progress 5 "$total_steps"
 
 # Clean up temporary files
 rm /tmp/username.txt /tmp/password.txt /tmp/password_confirm.txt
