@@ -1,10 +1,41 @@
 #!/bin/bash
-
-
 # Check if dialog package is installed, if not, install it
 if ! pacman -Q dialog &>/dev/null; then
     sudo pacman -Sy --noconfirm dialog > /dev/null
 fi
+
+create_user() {
+    # Prompt user for username and password
+    dialog --inputbox "Enter a username:" 10 70 2> /tmp/username.txt
+    dialog --passwordbox "Enter a password:" 10 70 2> /tmp/password.txt
+    dialog --passwordbox "Confirm password:" 10 70 2> /tmp/password_confirm.txt
+
+    # Read username and passwords from temporary files
+    USERNAME=$(cat /tmp/username.txt)
+    PASSWORD=$(cat /tmp/password.txt)
+    PASSWORD_CONFIRM=$(cat /tmp/password_confirm.txt)
+
+    # Check if passwords match
+    if [ "$PASSWORD" != "$PASSWORD_CONFIRM" ]; then
+        dialog --msgbox "Passwords do not match. Please try again." 10 70
+        exit 1
+    fi
+
+    # Check if the user already exists
+    if id "$USERNAME" &>/dev/null; then
+        sudo userdel -r "$USERNAME"
+    fi
+
+    # Create the new user
+    sudo useradd -m -U "$USERNAME"
+    update_progress 5 "$total_steps"
+
+    # Set the password for the new user
+    echo "$USERNAME:$PASSWORD" | sudo chpasswd
+
+    # Clean up temporary files
+    rm /tmp/username.txt /tmp/password.txt /tmp/password_confirm.txt
+}
 
 # Function to update the progress gauge
 update_progress() {
@@ -69,37 +100,6 @@ if ! command -v vim &> /dev/null; then
     sudo pacman -S --noconfirm vim > /dev/null
 fi
 update_progress 4 "$total_steps"
-
-# Prompt user for username and password
-dialog --inputbox "Enter a username:" 10 70 2> /tmp/username.txt
-dialog --passwordbox "Enter a password:" 10 70 2> /tmp/password.txt
-dialog --passwordbox "Confirm password:" 10 70 2> /tmp/password_confirm.txt
-
-# Read username and passwords from temporary files
-USERNAME=$(cat /tmp/username.txt)
-PASSWORD=$(cat /tmp/password.txt)
-PASSWORD_CONFIRM=$(cat /tmp/password_confirm.txt)
-
-# Check if passwords match
-if [ "$PASSWORD" != "$PASSWORD_CONFIRM" ]; then
-    dialog --msgbox "Passwords do not match. Please try again." 10 70
-    exit 1
-fi
-
-# Check if the user already exists
-if id "$USERNAME" &>/dev/null; then
-    sudo userdel -r "$USERNAME"
-fi
-
-# Create the new user
-sudo useradd -m -U "$USERNAME"
-update_progress 5 "$total_steps"
-
-# Set the password for the new user
-echo "$USERNAME:$PASSWORD" | sudo chpasswd
-
-# Clean up temporary files
-rm /tmp/username.txt /tmp/password.txt /tmp/password_confirm.txt
 
 # Remove original .local if it exists
 if [ -d "/home/$USERNAME/.local" ]; then
@@ -190,6 +190,7 @@ update_progress 14 "$total_steps"
 # Copy dotfiles to user's home directory
 sudo -u "$USERNAME" cp -r "/home/$USERNAME/dotfiles/.config" "/home/$USERNAME/"
 sudo -u "$USERNAME" cp "/home/$USERNAME/dotfiles/.xinitrc" "/home/$USERNAME/"
+sudo -u "$USERNAME" cp "/home/$USERNAME/dotfiles/.bash_profile" "/home/$USERNAME/"
 sudo -u "$USERNAME" cp "/home/$USERNAME/dotfiles/.bashrc" "/home/$USERNAME/"
 sudo -u "$USERNAME" cp "/home/$USERNAME/dotfiles/.local/bin/remaps" "/home/$USERNAME/.local/bin/"
 sudo -u "$USERNAME" cp "/home/$USERNAME/dotfiles/.vimrc" "/home/$USERNAME/"
@@ -202,7 +203,7 @@ sudo sed -i '/#VerbosePkgLists/a ILoveCandy' /etc/pacman.conf > /dev/null
 update_progress 16 "$total_steps"
 
 # Set ownership of copied files to the user
-sudo chown -R "$USERNAME:$USERNAME" "/home/$USERNAME/.config" "/home/$USERNAME/.xinitrc" "/home/$USERNAME/.bashrc" "/home/$USERNAME/.local/bin/remaps" "/home/$USERNAME/.vimrc"  "/home/$USERNAME/.surf/styles/default.css"
+sudo chown -R "$USERNAME:$USERNAME" "/home/$USERNAME/.config" "/home/$USERNAME/.xinitrc"  "/home/$USERNAME/.bash_profile" "/home/$USERNAME/.bashrc" "/home/$USERNAME/.local/bin/remaps" "/home/$USERNAME/.vimrc"  "/home/$USERNAME/.surf/styles/default.css"
 
 # Set the remaps script to executable
 chmod +x "/home/$USERNAME/.local/bin/remaps"
