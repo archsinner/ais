@@ -189,14 +189,20 @@ copy_files=(
     "/home/$USERNAME/dotfiles/.xinitrc"
     "/home/$USERNAME/dotfiles/.bash_profile"
     "/home/$USERNAME/dotfiles/.bashrc"
-    "/home/$USERNAME/dotfiles/.local/bin/remaps > ~/.local/bin/remaps"
     "/home/$USERNAME/dotfiles/.vimrc"
-    "/home/$USERNAME/dotfiles/.surf/styles/default.css > ~/.surf/styles/default.css"
 )
 
+# Perform the copies
 for file in "${copy_files[@]}"; do
     sudo -u "$USERNAME" cp -r "$file" "/home/$USERNAME/"
 done
+
+# Copy the remaps script to .local/bin
+sudo -u "$USERNAME" cp "/home/$USERNAME/dotfiles/.local/bin/remaps" "/home/$USERNAME/.local/bin/"
+
+# Copy the default.css file to .surf/styles
+sudo -u "$USERNAME" cp "/home/$USERNAME/dotfiles/.surf/styles/default.css" "/home/$USERNAME/.surf/styles/"
+
 update_progress_dialog 15 "$total_steps"
 
 # Add ILoveCandy to /etc/pacman.conf
