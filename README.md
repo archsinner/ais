@@ -29,8 +29,8 @@ Clone this repository to your local machine:
     
 or if you don't have git installed
     
-    curl -LO https://github.com/archsinner/ais/ais.sh
-
+    curl -O https://raw.githubusercontent.com/archsinner/ais/main/ais.sh
+    
 Make the script executable:
 
     chmod +x ais.sh
