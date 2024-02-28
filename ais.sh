@@ -1,5 +1,15 @@
 #!/bin/bash
 
+
+# Function to handle Ctrl+C
+exit_script() {
+    echo "Exiting script..."
+    exit 1
+}
+
+# Trap Ctrl+C and call the exit function
+trap exit_script SIGINT
+
 # Check if dialog package is installed, if not, install it
 if ! pacman -Q dialog &>/dev/null; then
     pacman -Sy --noconfirm dialog > /dev/null
