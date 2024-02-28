@@ -29,9 +29,6 @@ show_progress() {
     echo "XXX"
 }
 
-# Example usage:
-# show_progress 3 10 "Installing dependencies..."
-
 # Function to install packages if not already installed
 install_package() {
     local package="$1"
@@ -89,7 +86,7 @@ check_install_dependencies() {
     local dependencies=(
         xorg-xrandr imlib2 xwallpaper base-devel libx11 libxft xorg-server xorg-xinit terminus-font dialog libxinerama xcompmgr webkit2gtk gcr exa
         wireplumber unclutter pipewire xdotool xcape go nodejs python python-pip python-setuptools python-wheel rust ocaml opam julia
-        ruby perl lua java-runtime-headless jdk-openjdk scala php npm yarn r revive staticcheck gopls fzf composer
+        ruby perl lua java-runtime-headless jdk-openjdk scala php npm yarn r sudo revive staticcheck gopls fzf composer
     )
 
     for dep in "${dependencies[@]}"; do
