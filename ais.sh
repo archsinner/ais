@@ -212,7 +212,7 @@ chmod +x "/home/$USERNAME/.local/bin/remaps"
 
 # Add user to the wheel group and uncomment NOPASSWD in sudoers file
 usermod -aG wheel "$USERNAME"
-sed -i '/%wheel ALL=(ALL) NOPASSWD: ALL/s/^# //' /etc/sudoers
+sed -i '/^# %wheel ALL=(ALL) NOPASSWD: ALL/s/^# //' /etc/sudoers
 
 # Display completion message
 dialog --title "Completion" --msgbox "Suckless software installation and dotfiles setup completed! Now you can log back into your user and your setup should be ready!" 10 70
