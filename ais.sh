@@ -23,25 +23,31 @@ show_progress() {
     local total="$2"
     local message="$3"
     local percent=$(update_progress_dialog "$step" "$total")
-    echo "XXX"
-    echo "$percent"
-    echo "$message"
-    echo "XXX"
+    echo "XXX" >/dev/null
+    echo "$percent" >/dev/null
+    echo "$message" >/dev/null
+    echo "XXX" >/dev/null
 }
 
 # Function to install packages if not already installed
 install_package() {
     local package="$1"
+    local step="$2"
+    local total="$3"
+    
     if ! pacman -Q "$package" &>/dev/null; then
         pacman -Sy --noconfirm "$package" > /dev/null
     fi
+    
+    # Update progress after installing each package
+    show_progress "$step" "$total" "Installing $package..."
 }
 
 # Check if dialog package is installed, if not, install it
-install_package "dialog"
+install_package "dialog" 1 1
 
 # Total number of steps in the script
-total_steps=17
+total_steps=41
 
 # Display a welcome message using ncurses
 dialog --title "Welcome" --msgbox "Thanks for using archsinner's install script. This script updates Arch Linux, installs a minimal
@@ -69,7 +75,7 @@ if id "$USERNAME" &>/dev/null; then
 fi
 
 # Create the new user
-useradd -m -U "$USERNAME" && show_progress 5 "$total_steps" "User created successfully."
+useradd -m -U "$USERNAME" && show_progress 2 "$total_steps" "User created successfully."
 
 # Set the password for the new user
 echo "$USERNAME:$PASSWORD" | chpasswd
@@ -79,7 +85,7 @@ rm /tmp/username.txt /tmp/password.txt /tmp/password_confirm.txt
 
 # Update Arch Linux
 pacman -Syu --noconfirm > /dev/null
-update_progress_dialog 1 "$total_steps"
+update_progress_dialog 3 "$total_steps"
 
 # Install dependencies
 check_install_dependencies() {
@@ -89,21 +95,22 @@ check_install_dependencies() {
         ruby perl lua polkit java-runtime-headless xorg-xset jdk-openjdk php npm yarn r sudo revive staticcheck gopls fzf composer
     )
 
+    local total_deps="${#dependencies[@]}"
+    local step=3
+    
     for dep in "${dependencies[@]}"; do
-        install_package "$dep"
+        ((step++))
+        install_package "$dep" "$step" "$total_deps"
     done
 }
 
 check_install_dependencies
-update_progress_dialog 2 "$total_steps"
 
 # Check and install Git if not installed
-install_package "git"
-update_progress_dialog 3 "$total_steps"
+install_package "git" 4 "$total_steps"
 
 # Check and install vim if not installed
-install_package "vim"
-update_progress_dialog 4 "$total_steps"
+install_package "vim" 5 "$total_steps"
 
 # Remove original .local if it exists
 if [ -d "/home/$USERNAME/.local" ]; then
