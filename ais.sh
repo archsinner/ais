@@ -1,4 +1,5 @@
 #!/bin/bash
+
 # Check if dialog package is installed, if not, install it
 if ! pacman -Q dialog &>/dev/null; then
     sudo pacman -Sy --noconfirm dialog > /dev/null
@@ -36,6 +37,7 @@ create_user() {
     # Clean up temporary files
     rm /tmp/username.txt /tmp/password.txt /tmp/password_confirm.txt
 }
+create_user
 
 # Function to update the progress gauge
 update_progress() {
