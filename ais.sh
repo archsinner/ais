@@ -1,5 +1,12 @@
 #!/bin/bash
 
+#!/bin/bash
+
+# Check if dialog package is installed, if not, install it
+if ! pacman -Q dialog &>/dev/null; then
+    sudo pacman -Sy --noconfirm dialog > /dev/null
+fi
+
 # Function to update the progress gauge
 update_progress() {
     local current_step="$1"
