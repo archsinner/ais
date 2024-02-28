@@ -26,7 +26,9 @@ Usage
 Clone this repository to your local machine:
 
     git clone https://github.com/archsinner/ais.git
-        or if you don't have git installed
+    
+or if you don't have git installed
+    
     curl -LO https://github.com/archsinner/ais/ais.sh
 
 Make the script executable:
