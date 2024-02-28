@@ -1,6 +1,5 @@
 #!/bin/bash
 
-
 # Function to handle Ctrl+C
 exit_script() {
     echo "Exiting script..."
@@ -10,11 +9,6 @@ exit_script() {
 # Trap Ctrl+C and call the exit function
 trap exit_script SIGINT
 
-# Check if dialog package is installed, if not, install it
-if ! pacman -Q dialog &>/dev/null; then
-    pacman -Sy --noconfirm dialog > /dev/null
-fi
-
 # Function to update the progress gauge
 update_progress() {
     local current_step="$1"
@@ -23,10 +17,16 @@ update_progress() {
     echo "$progress"
 }
 
+# Function to install packages if not already installed
+install_package() {
+    local package="$1"
+    if ! pacman -Q "$package" &>/dev/null; then
+        pacman -Sy --noconfirm "$package" > /dev/null
+    fi
+}
+
 # Check if dialog package is installed, if not, install it
-if ! command -v dialog &> /dev/null; then
-    pacman -S --noconfirm dialog > /dev/null
-fi
+install_package "dialog"
 
 # Total number of steps in the script
 total_steps=17
@@ -41,9 +41,9 @@ dialog --passwordbox "Enter a password:" 10 70 2> /tmp/password.txt
 dialog --passwordbox "Confirm password:" 10 70 2> /tmp/password_confirm.txt
 
 # Read username and passwords from temporary files
-USERNAME=$(cat /tmp/username.txt)
-PASSWORD=$(cat /tmp/password.txt)
-PASSWORD_CONFIRM=$(cat /tmp/password_confirm.txt)
+USERNAME=$(<"/tmp/username.txt")
+PASSWORD=$(<"/tmp/password.txt")
+PASSWORD_CONFIRM=$(<"/tmp/password_confirm.txt")
 
 # Check if passwords match
 if [ "$PASSWORD" != "$PASSWORD_CONFIRM" ]; then
@@ -71,42 +71,26 @@ update_progress 1 "$total_steps"
 
 # Install dependencies
 check_install_dependencies() {
-    local dependencies=(xorg-xrandr imlib2 xwallpaper base-devel libx11 libxft xorg-server xorg-xinit terminus-font dialog libxinerama xcompmgr webkit2gtk gcr exa
-     wireplumber unclutter pipewire xdotool xcape go nodejs python python-pip python-setuptools python-wheel rust ocaml opam julia
-      ruby perl lua java-runtime-headless jdk-openjdk scala php npm yarn r revive staticcheck gopls fzf composer)
+    local dependencies=(
+        xorg-xrandr imlib2 xwallpaper base-devel libx11 libxft xorg-server xorg-xinit terminus-font dialog libxinerama xcompmgr webkit2gtk gcr exa
+        wireplumber unclutter pipewire xdotool xcape go nodejs python python-pip python-setuptools python-wheel rust ocaml opam julia
+        ruby perl lua java-runtime-headless jdk-openjdk scala php npm yarn r revive staticcheck gopls fzf composer
+    )
 
-    local missing_dependencies=()
-    
     for dep in "${dependencies[@]}"; do
-        if ! pacman -Q "$dep" &>/dev/null; then
-            missing_dependencies+=("$dep")
-        fi
+        install_package "$dep"
     done
-    
-    if [[ ${#missing_dependencies[@]} -gt 0 ]]; then
-        local installed_deps=0
-        for dep in "${missing_dependencies[@]}"; do
-            pacman -Sy --noconfirm "$dep" > /dev/null
-            ((installed_deps++))
-            # Update the progress gauge
-            update_progress "$installed_deps" "${#dependencies[@]}"
-        done
-    fi
 }
 
 check_install_dependencies
 update_progress 2 "$total_steps"
 
 # Check and install Git if not installed
-if ! command -v git &> /dev/null; then
-    pacman -S --noconfirm git > /dev/null
-fi
+install_package "git"
 update_progress 3 "$total_steps"
 
 # Check and install vim if not installed
-if ! command -v vim &> /dev/null; then
-    pacman -S --noconfirm vim > /dev/null
-fi
+install_package "vim"
 update_progress 4 "$total_steps"
 
 # Remove original .local if it exists
@@ -114,31 +98,23 @@ if [ -d "/home/$USERNAME/.local" ]; then
     rm -rf "/home/$USERNAME/.local/"
 fi
 
-# Create .local directory in user's home directory
-mkdir -p "/home/$USERNAME/.local"
+# Create directories in user's home directory
+directories=(
+    "/home/$USERNAME/.local"
+    "/home/$USERNAME/.local/src"
+    "/home/$USERNAME/.local/bin"
+    "/home/$USERNAME/.surf/styles"
+)
+
+for dir in "${directories[@]}"; do
+    mkdir -p "$dir"
+done
 update_progress 6 "$total_steps"
 
-# Create .local/src directory in user's home directory
-mkdir -p "/home/$USERNAME/.local/src"
-
-# Create .local/bin directory in user's home directory
-mkdir -p "/home/$USERNAME/.local/bin"
-
-# Create .surf/styles directory in user's home directory
-mkdir -p "/home/$USERNAME/.surf/styles"
-
-# Set ownership and permissions of .local directory
-chown -R "$USERNAME:$USERNAME" "/home/$USERNAME/.local"
+# Set ownership and permissions
+chown -R "$USERNAME:$USERNAME" "/home/$USERNAME/.local" "/home/$USERNAME/.surf"
 chmod -R 755 "/home/$USERNAME/.local"
 update_progress 7 "$total_steps"
-
-# Set ownership and permissions of .local directory
-chown -R "$USERNAME:$USERNAME" "/home/$USERNAME/.surf"
-chmod -R 755 "/home/$USERNAME/.surf"
-
-# Set ownership and permissions of .local/bin directory
-chown -R "$USERNAME:$USERNAME" "/home/$USERNAME/.local/bin"
-chmod -R 755 "/home/$USERNAME/.local/bin"
 
 # Prompt user for desktop or laptop usage
 dialog --title "Desktop or Laptop?" --yesno "Are you setting up a laptop or desktop? Choose 'Yes' for laptop or 'No' for desktop." 10 70
@@ -196,13 +172,19 @@ sudo -u "$USERNAME" git clone https://github.com/archsinner/dotfiles.git "/home/
 update_progress 14 "$total_steps"
 
 # Copy dotfiles to user's home directory
-sudo -u "$USERNAME" cp -r "/home/$USERNAME/dotfiles/.config" "/home/$USERNAME/"
-sudo -u "$USERNAME" cp "/home/$USERNAME/dotfiles/.xinitrc" "/home/$USERNAME/"
-sudo -u "$USERNAME" cp "/home/$USERNAME/dotfiles/.bash_profile" "/home/$USERNAME/"
-sudo -u "$USERNAME" cp "/home/$USERNAME/dotfiles/.bashrc" "/home/$USERNAME/"
-sudo -u "$USERNAME" cp "/home/$USERNAME/dotfiles/.local/bin/remaps" "/home/$USERNAME/.local/bin/"
-sudo -u "$USERNAME" cp "/home/$USERNAME/dotfiles/.vimrc" "/home/$USERNAME/"
-sudo -u "$USERNAME" cp "/home/$USERNAME/dotfiles/.surf/styles/default.css" "/home/$USERNAME/.surf/styles/"
+copy_files=(
+    "/home/$USERNAME/dotfiles/.config"
+    "/home/$USERNAME/dotfiles/.xinitrc"
+    "/home/$USERNAME/dotfiles/.bash_profile"
+    "/home/$USERNAME/dotfiles/.bashrc"
+    "/home/$USERNAME/dotfiles/.local/bin/remaps"
+    "/home/$USERNAME/dotfiles/.vimrc"
+    "/home/$USERNAME/dotfiles/.surf/styles/default.css"
+)
+
+for file in "${copy_files[@]}"; do
+    sudo -u "$USERNAME" cp -r "$file" "/home/$USERNAME/"
+done
 update_progress 15 "$total_steps"
 
 # Add ILoveCandy to /etc/pacman.conf
@@ -211,7 +193,7 @@ sed -i '/#VerbosePkgLists/a ILoveCandy' /etc/pacman.conf > /dev/null
 update_progress 16 "$total_steps"
 
 # Set ownership of copied files to the user
-chown -R "$USERNAME:$USERNAME" "/home/$USERNAME/.config" "/home/$USERNAME/.xinitrc"  "/home/$USERNAME/.bash_profile" "/home/$USERNAME/.bashrc" "/home/$USERNAME/.local/bin/remaps" "/home/$USERNAME/.vimrc"  "/home/$USERNAME/.surf/styles/default.css"
+chown -R "$USERNAME:$USERNAME" "/home/$USERNAME/.config" "/home/$USERNAME/.xinitrc" "/home/$USERNAME/.bash_profile" "/home/$USERNAME/.bashrc" "/home/$USERNAME/.local/bin/remaps" "/home/$USERNAME/.vimrc" "/home/$USERNAME/.surf/styles/default.css"
 
 # Set the remaps script to executable
 chmod +x "/home/$USERNAME/.local/bin/remaps"
