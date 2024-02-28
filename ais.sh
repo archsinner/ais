@@ -5,40 +5,6 @@ if ! pacman -Q dialog &>/dev/null; then
     sudo pacman -Sy --noconfirm dialog > /dev/null
 fi
 
-create_user() {
-    # Prompt user for username and password
-    dialog --inputbox "Enter a username:" 10 70 2> /tmp/username.txt
-    dialog --passwordbox "Enter a password:" 10 70 2> /tmp/password.txt
-    dialog --passwordbox "Confirm password:" 10 70 2> /tmp/password_confirm.txt
-
-    # Read username and passwords from temporary files
-    USERNAME=$(cat /tmp/username.txt)
-    PASSWORD=$(cat /tmp/password.txt)
-    PASSWORD_CONFIRM=$(cat /tmp/password_confirm.txt)
-
-    # Check if passwords match
-    if [ "$PASSWORD" != "$PASSWORD_CONFIRM" ]; then
-        dialog --msgbox "Passwords do not match. Please try again." 10 70
-        exit 1
-    fi
-
-    # Check if the user already exists
-    if id "$USERNAME" &>/dev/null; then
-        sudo userdel -r "$USERNAME"
-    fi
-
-    # Create the new user
-    sudo useradd -m -U "$USERNAME"
-    update_progress 5 "$total_steps"
-
-    # Set the password for the new user
-    echo "$USERNAME:$PASSWORD" | sudo chpasswd
-
-    # Clean up temporary files
-    rm /tmp/username.txt /tmp/password.txt /tmp/password_confirm.txt
-}
-create_user
-
 # Function to update the progress gauge
 update_progress() {
     local current_step="$1"
@@ -58,6 +24,37 @@ total_steps=17
 # Display a welcome message using ncurses
 dialog --title "Welcome" --msgbox "Thanks for using archsinner's install script. This script updates Arch Linux, installs a minimal
  suckless desktop, installs a vim coding environment with support for many programming languages, and sets up dotfiles, enjoy!" 10 70
+
+# Prompt user for username and password
+dialog --inputbox "Enter a username:" 10 70 2> /tmp/username.txt
+dialog --passwordbox "Enter a password:" 10 70 2> /tmp/password.txt
+dialog --passwordbox "Confirm password:" 10 70 2> /tmp/password_confirm.txt
+
+# Read username and passwords from temporary files
+USERNAME=$(cat /tmp/username.txt)
+PASSWORD=$(cat /tmp/password.txt)
+PASSWORD_CONFIRM=$(cat /tmp/password_confirm.txt)
+
+# Check if passwords match
+if [ "$PASSWORD" != "$PASSWORD_CONFIRM" ]; then
+    dialog --msgbox "Passwords do not match. Please try again." 10 70
+    exit 1
+fi
+
+# Check if the user already exists
+if id "$USERNAME" &>/dev/null; then
+    sudo userdel -r "$USERNAME"
+fi
+
+# Create the new user
+sudo useradd -m -U "$USERNAME"
+update_progress 5 "$total_steps"
+
+# Set the password for the new user
+echo "$USERNAME:$PASSWORD" | sudo chpasswd
+
+# Clean up temporary files
+rm /tmp/username.txt /tmp/password.txt /tmp/password_confirm.txt
 
 # Update Arch Linux
 sudo pacman -Syu --noconfirm > /dev/null
