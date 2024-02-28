@@ -9,13 +9,28 @@ exit_script() {
 # Trap Ctrl+C and call the exit function
 trap exit_script SIGINT
 
-# Function to update the progress gauge
-update_progress() {
+# Function to update the progress gauge with dialog
+update_progress_dialog() {
     local current_step="$1"
     local total_steps="$2"
     local progress=$((current_step * 100 / total_steps))
     echo "$progress"
 }
+
+# Function to display progress using dialog
+show_progress() {
+    local step="$1"
+    local total="$2"
+    local message="$3"
+    local percent=$(update_progress_dialog "$step" "$total")
+    echo "XXX"
+    echo "$percent"
+    echo "$message"
+    echo "XXX"
+}
+
+# Example usage:
+# show_progress 3 10 "Installing dependencies..."
 
 # Function to install packages if not already installed
 install_package() {
@@ -57,17 +72,17 @@ if id "$USERNAME" &>/dev/null; then
 fi
 
 # Create the new user
-useradd -m -U "$USERNAME" && update_progress 5 "$total_steps"
+useradd -m -U "$USERNAME" && show_progress 5 "$total_steps" "User created successfully."
 
 # Set the password for the new user
-echo "$USERNAME:$PASSWORD" | chpasswd && update_progress 5 "$total_steps"
+echo "$USERNAME:$PASSWORD" | chpasswd
 
 # Clean up temporary files
 rm /tmp/username.txt /tmp/password.txt /tmp/password_confirm.txt
 
 # Update Arch Linux
 pacman -Syu --noconfirm > /dev/null
-update_progress 1 "$total_steps"
+update_progress_dialog 1 "$total_steps"
 
 # Install dependencies
 check_install_dependencies() {
@@ -83,15 +98,15 @@ check_install_dependencies() {
 }
 
 check_install_dependencies
-update_progress 2 "$total_steps"
+update_progress_dialog 2 "$total_steps"
 
 # Check and install Git if not installed
 install_package "git"
-update_progress 3 "$total_steps"
+update_progress_dialog 3 "$total_steps"
 
 # Check and install vim if not installed
 install_package "vim"
-update_progress 4 "$total_steps"
+update_progress_dialog 4 "$total_steps"
 
 # Remove original .local if it exists
 if [ -d "/home/$USERNAME/.local" ]; then
@@ -109,12 +124,12 @@ directories=(
 for dir in "${directories[@]}"; do
     mkdir -p "$dir"
 done
-update_progress 6 "$total_steps"
+update_progress_dialog 6 "$total_steps"
 
 # Set ownership and permissions
 chown -R "$USERNAME:$USERNAME" "/home/$USERNAME/.local" "/home/$USERNAME/.surf"
 chmod -R 755 "/home/$USERNAME/.local"
-update_progress 7 "$total_steps"
+update_progress_dialog 7 "$total_steps"
 
 # Prompt user for desktop or laptop usage
 dialog --title "Desktop or Laptop?" --yesno "Are you setting up a laptop or desktop? Choose 'Yes' for laptop or 'No' for desktop." 10 70
@@ -130,7 +145,7 @@ else
     sudo -u "$USERNAME" git clone https://github.com/archsinner/slstatus-desktop.git "/home/$USERNAME/.local/src/slstatus-desktop"
     (cd "/home/$USERNAME/.local/src/slstatus-desktop" && sudo -u "$USERNAME" make && make clean install)
 fi
-update_progress 8 "$total_steps"
+update_progress_dialog 8 "$total_steps"
 
 # Remove original slstatus if it exists
 if [ -d "/home/$USERNAME/.local/src/slstatus" ]; then
@@ -165,11 +180,11 @@ done
 # Clone pfetch and install using make install
 sudo -u "$USERNAME" git clone https://github.com/archsinner/pfetch.git "/home/$USERNAME/.local/src/pfetch"
 (cd "/home/$USERNAME/.local/src/pfetch" && sudo make install)
-update_progress 13 "$total_steps"
+update_progress_dialog 13 "$total_steps"
 
 # Clone dotfiles repository and copy files to user's home directory
 sudo -u "$USERNAME" git clone https://github.com/archsinner/dotfiles.git "/home/$USERNAME/dotfiles"
-update_progress 14 "$total_steps"
+update_progress_dialog 14 "$total_steps"
 
 # Copy dotfiles to user's home directory
 copy_files=(
@@ -185,12 +200,12 @@ copy_files=(
 for file in "${copy_files[@]}"; do
     sudo -u "$USERNAME" cp -r "$file" "/home/$USERNAME/"
 done
-update_progress 15 "$total_steps"
+update_progress_dialog 15 "$total_steps"
 
 # Add ILoveCandy to /etc/pacman.conf
 sed -i '/#Color/s/^#//' /etc/pacman.conf
 sed -i '/#VerbosePkgLists/a ILoveCandy' /etc/pacman.conf > /dev/null
-update_progress 16 "$total_steps"
+update_progress_dialog 16 "$total_steps"
 
 # Set ownership of copied files to the user
 chown -R "$USERNAME:$USERNAME" "/home/$USERNAME/.config" "/home/$USERNAME/.xinitrc" "/home/$USERNAME/.bash_profile" "/home/$USERNAME/.bashrc" "/home/$USERNAME/.local/bin/remaps" "/home/$USERNAME/.vimrc" "/home/$USERNAME/.surf/styles/default.css"
@@ -204,4 +219,4 @@ sed -i '/%wheel ALL=(ALL) NOPASSWD: ALL/s/^# //' /etc/sudoers
 
 # Display completion message
 dialog --title "Completion" --msgbox "Suckless software installation and dotfiles setup completed! Now you can log back into your user and your setup should be ready!" 10 70
-update_progress "$total_steps" "$total_steps"
+update_progress_dialog "$total_steps" "$total_steps"
