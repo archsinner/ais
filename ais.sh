@@ -189,9 +189,9 @@ copy_files=(
     "/home/$USERNAME/dotfiles/.xinitrc"
     "/home/$USERNAME/dotfiles/.bash_profile"
     "/home/$USERNAME/dotfiles/.bashrc"
-    "/home/$USERNAME/dotfiles/.local/bin/remaps"
+    "/home/$USERNAME/dotfiles/.local/bin/remaps > ~/.local/bin/remaps"
     "/home/$USERNAME/dotfiles/.vimrc"
-    "/home/$USERNAME/dotfiles/.surf/styles/default.css"
+    "/home/$USERNAME/dotfiles/.surf/styles/default.css > ~/.surf/styles/default.css"
 )
 
 for file in "${copy_files[@]}"; do
