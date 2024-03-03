@@ -85,13 +85,10 @@ if id "$USERNAME" &>/dev/null; then
 fi
 
 # Create the new user with mail spool
-useradd -m -U -m -k /etc/skel -s /bin/bash -p $(openssl passwd -crypt "$PASSWORD") "$USERNAME" && show_progress 2 "$total_steps" "User created successfully."
-
-# Create mail spool for the user
-maildirmake.dovecot "/home/$USERNAME/Maildir"
+useradd -m -U -m -k /etc/skel -s /bin/bash "$USERNAME" && show_progress 2 "$total_steps" "User created successfully."
 
 # Set the password for the new user
-echo "$USERNAME:$PASSWORD" | chpasswd
+echo -e "$PASSWORD\n$PASSWORD" | passwd "$USERNAME"
 
 # Clean up temporary files
 rm /tmp/username.txt /tmp/password.txt /tmp/password_confirm.txt
