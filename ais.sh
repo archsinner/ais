@@ -54,9 +54,23 @@ whiptail --title "Welcome" --msgbox "Thanks for using archsinner's install scrip
  suckless desktop, installs a vim coding environment with support for many programming languages, and sets up dotfiles, enjoy!" 10 70
 
 # Prompt user for username and password
-USERNAME=$(whiptail --inputbox "Enter a username:" 10 70 3>&1 1>&2 2>&3)
-PASSWORD=$(whiptail --passwordbox "Enter a password:" 10 70 3>&1 1>&2 2>&3)
-PASSWORD_CONFIRM=$(whiptail --passwordbox "Confirm password:" 10 70 3>&1 1>&2 2>&3)
+whiptail --title "User Information" --inputbox "Enter a username:" 10 70 2>/tmp/username.txt
+whiptail --title "User Information" --passwordbox "Enter a password:" 10 70 2>/tmp/password.txt
+whiptail --title "User Information" --passwordbox "Confirm password:" 10 70 2>/tmp/password_confirm.txt
+
+# Read username and passwords from temporary files
+USERNAME=$(< /tmp/username.txt)
+PASSWORD=$(< /tmp/password.txt)
+PASSWORD_CONFIRM=$(< /tmp/password_confirm.txt)
+
+# Check if passwords match
+while [ "$PASSWORD" != "$PASSWORD_CONFIRM" ]; do
+    whiptail --title "Password Mismatch" --msgbox "Passwords do not match. Please try again." 10 70
+    whiptail --title "User Information" --passwordbox "Enter a password:" 10 70 2>/tmp/password.txt
+    whiptail --title "User Information" --passwordbox "Confirm password:" 10 70 2>/tmp/password_confirm.txt
+    PASSWORD=$(< /tmp/password.txt)
+    PASSWORD_CONFIRM=$(< /tmp/password_confirm.txt)
+done
 
 # Read username and passwords
 exit_status=$?
@@ -64,12 +78,6 @@ if [ $exit_status != 0 ]; then
     echo "User canceled."
     exit $exit_status
 fi
-
-# Check if passwords match
-while [ "$PASSWORD" != "$PASSWORD_CONFIRM" ]; do
-    PASSWORD=$(whiptail --passwordbox "Passwords do not match. Please try again:" 10 70 3>&1 1>&2 2>&3)
-    PASSWORD_CONFIRM=$(whiptail --passwordbox "Confirm password:" 10 70 3>&1 1>&2 2>&3)
-done
 
 # Check if the user already exists
 if id "$USERNAME" &>/dev/null; then
