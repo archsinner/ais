@@ -9,20 +9,20 @@ exit_script() {
 # Trap Ctrl+C and call the exit function
 trap exit_script SIGINT
 
-# Function to update the progress gauge with whiptail
-update_progress_whiptail() {
+# Function to update the progress gauge with dialog
+update_progress_dialog() {
     local current_step="$1"
     local total_steps="$2"
     local progress=$((current_step * 100 / total_steps))
     echo "$progress"
 }
 
-# Function to display progress using whiptail
+# Function to display progress using dialog
 show_progress() {
     local step="$1"
     local total="$2"
     local message="$3"
-    local percent=$(update_progress_whiptail "$step" "$total")
+    local percent=$(update_progress_dialog "$step" "$total")
     echo "XXX" >/dev/null
     echo "$percent" >/dev/null
     echo "$message" >/dev/null
@@ -43,31 +43,29 @@ install_package() {
     show_progress "$step" "$total" "Installing $package..."
 }
 
-# Check if whiptail package is installed, if not, install it
-install_package "whiptail" 1 1
+# Check if dialog package is installed, if not, install it
+install_package "dialog" 1 1
 
 # Total number of steps in the script
-total_steps=42
+total_steps=41
 
-# Display a welcome message using whiptail
-whiptail --title "Welcome" --msgbox "Thanks for using archsinner's install script. This script updates Arch Linux, installs a minimal
+# Display a welcome message using ncurses
+dialog --title "Welcome" --msgbox "Thanks for using archsinner's install script. This script updates Arch Linux, installs a minimal
  suckless desktop, installs a vim coding environment with support for many programming languages, and sets up dotfiles, enjoy!" 10 70
 
 # Prompt user for username and password
-USERNAME=$(whiptail --inputbox "Enter a username:" 10 70 3>&1 1>&2 2>&3)
-PASSWORD=$(whiptail --passwordbox "Enter a password:" 10 70 3>&1 1>&2 2>&3)
-PASSWORD_CONFIRM=$(whiptail --passwordbox "Confirm password:" 10 70 3>&1 1>&2 2>&3)
+dialog --inputbox "Enter a username:" 10 70 2> /tmp/username.txt
+dialog --passwordbox "Enter a password:" 10 70 2> /tmp/password.txt
+dialog --passwordbox "Confirm password:" 10 70 2> /tmp/password_confirm.txt
 
-# Read username and passwords
-exit_status=$?
-if [ $exit_status != 0 ]; then
-    echo "User canceled."
-    exit $exit_status
-fi
+# Read username and passwords from temporary files
+USERNAME=$(<"/tmp/username.txt")
+PASSWORD=$(<"/tmp/password.txt")
+PASSWORD_CONFIRM=$(<"/tmp/password_confirm.txt")
 
 # Check if passwords match
 if [ "$PASSWORD" != "$PASSWORD_CONFIRM" ]; then
-    whiptail --msgbox "Passwords do not match. Please try again." 10 70
+    dialog --msgbox "Passwords do not match. Please try again." 10 70
     exit 1
 fi
 
@@ -76,11 +74,8 @@ if id "$USERNAME" &>/dev/null; then
     userdel -r "$USERNAME"
 fi
 
-# Create the new user with mail spool
-useradd -m -U -m -k /etc/skel -s /bin/bash -p $(openssl passwd -crypt "$PASSWORD") "$USERNAME" && show_progress 2 "$total_steps" "User created successfully."
-
-# Create mail spool for the user
-maildirmake.dovecot "/home/$USERNAME/Maildir"
+# Create the new user
+useradd -m -U "$USERNAME" && show_progress 2 "$total_steps" "User created successfully."
 
 # Set the password for the new user
 echo "$USERNAME:$PASSWORD" | chpasswd
@@ -90,7 +85,7 @@ rm /tmp/username.txt /tmp/password.txt /tmp/password_confirm.txt
 
 # Update Arch Linux
 pacman -Syu --noconfirm > /dev/null
-show_progress 3 "$total_steps" "Updating Arch Linux..."
+update_progress_dialog 3 "$total_steps"
 
 # Install dependencies
 check_install_dependencies() {
@@ -133,15 +128,16 @@ directories=(
 for dir in "${directories[@]}"; do
     mkdir -p "$dir"
 done
-show_progress 6 "$total_steps" "Creating directories..."
+update_progress_dialog 6 "$total_steps"
 
 # Set ownership and permissions
 chown -R "$USERNAME:$USERNAME" "/home/$USERNAME/.local" "/home/$USERNAME/.surf"
 chmod -R 755 "/home/$USERNAME/.local"
-show_progress 7 "$total_steps" "Setting ownership and permissions..."
+update_progress_dialog 7 "$total_steps"
 
 # Prompt user for desktop or laptop usage
-response=$(whiptail --title "Desktop or Laptop?" --yesno "Are you setting up a laptop or desktop? Choose 'Yes' for laptop or 'No' for desktop." 10 70 3>&1 1>&2 2>&3)
+dialog --title "Desktop or Laptop?" --yesno "Are you setting up a laptop or desktop? Choose 'Yes' for laptop or 'No' for desktop." 10 70
+response=$?
 
 # Check the user's response and clone the appropriate slstatus repository
 if [ $response -eq 0 ]; then
@@ -153,7 +149,7 @@ else
     sudo -u "$USERNAME" git clone https://github.com/archsinner/slstatus-desktop.git "/home/$USERNAME/.local/src/slstatus-desktop"
     (cd "/home/$USERNAME/.local/src/slstatus-desktop" && sudo -u "$USERNAME" make && make clean install)
 fi
-show_progress 8 "$total_steps" "Cloning slstatus repository..."
+update_progress_dialog 8 "$total_steps"
 
 # Remove original slstatus if it exists
 if [ -d "/home/$USERNAME/.local/src/slstatus" ]; then
@@ -177,7 +173,7 @@ for repo in "${repos[@]}"; do
     if [ -d "$target_dir" ]; then
         (cd "$target_dir" && sudo -u "$USERNAME" make > /dev/null && make clean install > /dev/null) | {
             while read -r line; do
-                update_progress_whiptail "$index" "$total_repos" | whiptail --title "Compiling $repo" --gauge "$line" 10 70
+                update_progress "$index" "$total_repos" | dialog --title "Compiling $repo" --gauge "$line" 10 70
             done
         }
     else
@@ -188,11 +184,11 @@ done
 # Clone pfetch and install using make install
 sudo -u "$USERNAME" git clone https://github.com/archsinner/pfetch.git "/home/$USERNAME/.local/src/pfetch"
 (cd "/home/$USERNAME/.local/src/pfetch" && sudo make install)
-show_progress 13 "$total_steps" "Cloning pfetch repository..."
+update_progress_dialog 13 "$total_steps"
 
 # Clone dotfiles repository and copy files to user's home directory
 sudo -u "$USERNAME" git clone https://github.com/archsinner/dotfiles.git "/home/$USERNAME/dotfiles"
-show_progress 14 "$total_steps" "Cloning dotfiles repository..."
+update_progress_dialog 14 "$total_steps"
 
 # Copy dotfiles to user's home directory
 copy_files=(
@@ -214,12 +210,12 @@ sudo -u "$USERNAME" cp "/home/$USERNAME/dotfiles/.local/bin/remaps" "/home/$USER
 # Copy the default.css file to .surf/styles
 sudo -u "$USERNAME" cp "/home/$USERNAME/dotfiles/.surf/styles/default.css" "/home/$USERNAME/.surf/styles/"
 
-show_progress 15 "$total_steps" "Copying dotfiles and scripts..."
+update_progress_dialog 15 "$total_steps"
 
 # Add ILoveCandy to /etc/pacman.conf
 sed -i '/#Color/s/^#//' /etc/pacman.conf
 sed -i '/#VerbosePkgLists/a ILoveCandy' /etc/pacman.conf > /dev/null
-show_progress 16 "$total_steps" "Updating pacman.conf..."
+update_progress_dialog 16 "$total_steps"
 
 # Set ownership of copied files to the user
 chown -R "$USERNAME:$USERNAME" "/home/$USERNAME/.config" "/home/$USERNAME/.xinitrc" "/home/$USERNAME/.bash_profile" "/home/$USERNAME/.bashrc" "/home/$USERNAME/.local/bin/remaps" "/home/$USERNAME/.vimrc" "/home/$USERNAME/.surf/styles/default.css"
@@ -231,8 +227,8 @@ chmod +x "/home/$USERNAME/.local/bin/remaps"
 usermod -aG wheel "$USERNAME"
 sed -i '/^# %wheel.*NOPASSWD: ALL/s/^# //' /etc/sudoers
 
-show_progress 17 "$total_steps" "Finalizing setup..."
+update_progress_dialog 17 "$total_steps"
 
 # Display completion message
-whiptail --title "Completion" --msgbox "Suckless software installation and dotfiles setup completed! Now you can log back into your user and your setup should be ready!" 10 70
-show_progress "$total_steps" "$total_steps" "Setup completed!"
+dialog --title "Completion" --msgbox "Suckless software installation and dotfiles setup completed! Now you can log back into your user and your setup should be ready!" 10 70
+update_progress_dialog "$total_steps" "$total_steps"
