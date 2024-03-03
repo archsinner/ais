@@ -9,20 +9,20 @@ exit_script() {
 # Trap Ctrl+C and call the exit function
 trap exit_script SIGINT
 
-# Function to update the progress gauge with dialog
-update_progress_dialog() {
+# Function to update the progress gauge with whiptail
+update_progress_whiptail() {
     local current_step="$1"
     local total_steps="$2"
     local progress=$((current_step * 100 / total_steps))
     echo "$progress"
 }
 
-# Function to display progress using dialog
+# Function to display progress using whiptail
 show_progress() {
     local step="$1"
     local total="$2"
     local message="$3"
-    local percent=$(update_progress_dialog "$step" "$total")
+    local percent=$(update_progress_whiptail "$step" "$total")
     echo "XXX" >/dev/null
     echo "$percent" >/dev/null
     echo "$message" >/dev/null
@@ -43,29 +43,31 @@ install_package() {
     show_progress "$step" "$total" "Installing $package..."
 }
 
-# Check if dialog package is installed, if not, install it
-install_package "dialog" 1 1
+# Check if whiptail package is installed, if not, install it
+install_package "whiptail" 1 1
 
 # Total number of steps in the script
 total_steps=41
 
-# Display a welcome message using ncurses
-dialog --title "Welcome" --msgbox "Thanks for using archsinner's install script. This script updates Arch Linux, installs a minimal
+# Display a welcome message using whiptail
+whiptail --title "Welcome" --msgbox "Thanks for using archsinner's install script. This script updates Arch Linux, installs a minimal
  suckless desktop, installs a vim coding environment with support for many programming languages, and sets up dotfiles, enjoy!" 10 70
 
 # Prompt user for username and password
-dialog --inputbox "Enter a username:" 10 70 2> /tmp/username.txt
-dialog --passwordbox "Enter a password:" 10 70 2> /tmp/password.txt
-dialog --passwordbox "Confirm password:" 10 70 2> /tmp/password_confirm.txt
+USERNAME=$(whiptail --inputbox "Enter a username:" 10 70 3>&1 1>&2 2>&3)
+PASSWORD=$(whiptail --passwordbox "Enter a password:" 10 70 3>&1 1>&2 2>&3)
+PASSWORD_CONFIRM=$(whiptail --passwordbox "Confirm password:" 10 70 3>&1 1>&2 2>&3)
 
-# Read username and passwords from temporary files
-USERNAME=$(<"/tmp/username.txt")
-PASSWORD=$(<"/tmp/password.txt")
-PASSWORD_CONFIRM=$(<"/tmp/password_confirm.txt")
+# Read username and passwords
+exit_status=$?
+if [ $exit_status != 0 ]; then
+    echo "User canceled."
+    exit $exit_status
+fi
 
 # Check if passwords match
 if [ "$PASSWORD" != "$PASSWORD_CONFIRM" ]; then
-    dialog --msgbox "Passwords do not match. Please try again." 10 70
+    whiptail --msgbox "Passwords do not match. Please try again." 10 70
     exit 1
 fi
 
@@ -79,9 +81,6 @@ useradd -m -U "$USERNAME" && show_progress 2 "$total_steps" "User created succes
 
 # Set the password for the new user
 echo "$USERNAME:$PASSWORD" | chpasswd
-
-# Clean up temporary files
-rm /tmp/username.txt /tmp/password.txt /tmp/password_confirm.txt
 
 # Update Arch Linux
 pacman -Syu --noconfirm > /dev/null
@@ -136,7 +135,7 @@ chmod -R 755 "/home/$USERNAME/.local"
 update_progress_dialog 7 "$total_steps"
 
 # Prompt user for desktop or laptop usage
-dialog --title "Desktop or Laptop?" --yesno "Are you setting up a laptop or desktop? Choose 'Yes' for laptop or 'No' for desktop." 10 70
+whiptail --title "Desktop or Laptop?" --yesno "Are you setting up a laptop or desktop? Choose 'Yes' for laptop or 'No' for desktop." 10 70
 response=$?
 
 # Check the user's response and clone the appropriate slstatus repository
@@ -173,7 +172,7 @@ for repo in "${repos[@]}"; do
     if [ -d "$target_dir" ]; then
         (cd "$target_dir" && sudo -u "$USERNAME" make > /dev/null && make clean install > /dev/null) | {
             while read -r line; do
-                update_progress "$index" "$total_repos" | dialog --title "Compiling $repo" --gauge "$line" 10 70
+                update_progress "$index" "$total_repos" | whiptail --title "Compiling $repo" --gauge "$line" 10 70
             done
         }
     else
@@ -230,5 +229,5 @@ sed -i '/^# %wheel.*NOPASSWD: ALL/s/^# //' /etc/sudoers
 update_progress_dialog 17 "$total_steps"
 
 # Display completion message
-dialog --title "Completion" --msgbox "Suckless software installation and dotfiles setup completed! Now you can log back into your user and your setup should be ready!" 10 70
+whiptail --title "Completion" --msgbox "Suckless software installation and dotfiles setup completed! Now you can log back into your user and your setup should be ready!" 10 70
 update_progress_dialog "$total_steps" "$total_steps"
