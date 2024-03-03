@@ -66,10 +66,10 @@ if [ $exit_status != 0 ]; then
 fi
 
 # Check if passwords match
-if [ "$PASSWORD" != "$PASSWORD_CONFIRM" ]; then
-    whiptail --msgbox "Passwords do not match. Please try again." 10 70
-    exit 1
-fi
+while [ "$PASSWORD" != "$PASSWORD_CONFIRM" ]; do
+    PASSWORD=$(whiptail --passwordbox "Passwords do not match. Please try again:" 10 70 3>&1 1>&2 2>&3)
+    PASSWORD_CONFIRM=$(whiptail --passwordbox "Confirm password:" 10 70 3>&1 1>&2 2>&3)
+done
 
 # Check if the user already exists
 if id "$USERNAME" &>/dev/null; then
