@@ -42,6 +42,7 @@ Run the script:
 Follow the on-screen instructions to proceed with the installation.
 
 Notes
+I've changed this to a full gruvbox themed system. It is my best dwm gruvbox system yet. 
 
  This script assumes you are running Arch Linux. Please ensure you have a stable internet connection before running the script.
 Make sure to review the script before execution to understand what actions will be taken.
